@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tesla Model 3 — Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080B;--sf:#0F0F14;--sf2:#151519;--sf3:#1B1B21;
+  --br:#202028;--br2:#2A2A35;
+  --tx:#E4E4EE;--mu:#5A5A72;--dim:#3A3A50;
+  --red:#E31937;--rdim:#2A0F12;--rmid:#4A1520;
+  --grn:#22C55E;--gdim:#0A2018;
+  --blu:#3B82F6;--bdim:#0F1A2E;
+  --amb:#F59E0B;--adim:#251900;
+  --pur:#A78BFA;--pdim:#1A1428;
+  --teal:#14B8A6;--tdim:#0A1E1C;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--tx);font-family:-apple-system,'SF Pro Display','Helvetica Neue',system-ui,sans-serif;font-size:14px;line-height:1.5}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:var(--sf)}::-webkit-scrollbar-thumb{background:var(--br2);border-radius:2px}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:215px;background:var(--sf);border-right:1px solid var(--br);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.main{flex:1;overflow-x:hidden;display:flex;flex-direction:column}
+.s-logo{padding:16px 14px;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:10px}
+.s-em{width:32px;height:32px;background:var(--red);border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:16px;color:#fff;flex-shrink:0}
+.nav{padding:6px;flex:1}
+.ns{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px;padding:12px 8px 4px}
+.n{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--mu);font-size:12.5px;font-weight:500;transition:all .12s;border:none;background:none;width:100%;text-align:left}
+.n:hover{background:var(--sf2);color:var(--tx)}
+.n.on{background:var(--sf3);color:var(--tx);border:1px solid var(--br2)}
+.n.on i{color:var(--red)}
+.n i{font-size:15px;width:16px}
+.hdr{padding:12px 24px;border-bottom:1px solid var(--br);background:var(--sf);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.hdr-l h2{font-size:14px;font-weight:600}
+.hdr-l p{font-size:10.5px;color:var(--mu);margin-top:1px}
+.hdr-r{display:flex;align-items:center;gap:9px}
+.pill{font-size:10.5px;padding:3px 9px;border-radius:20px;font-weight:500;display:inline-flex;align-items:center;gap:4px;border:1px solid transparent;white-space:nowrap}
+.p-grn{background:var(--gdim);color:var(--grn);border-color:#1A4030}
+.p-red{background:var(--rdim);color:var(--red);border-color:var(--rmid)}
+.p-amb{background:var(--adim);color:var(--amb);border-color:#3A2A10}
+.p-blu{background:var(--bdim);color:var(--blu);border-color:#1A2840}
+.p-gray{background:var(--sf3);color:var(--mu);border-color:var(--br2)}
+.p-teal{background:var(--tdim);color:var(--teal);border-color:#0A2A28}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;position:relative}
+.dot::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:1.5px solid currentColor;opacity:.4;animation:ping 2.5s infinite}
+@keyframes ping{0%,100%{transform:scale(1);opacity:.4}60%{transform:scale(1.6);opacity:0}}
+.page{padding:20px 24px;display:none;flex:1;animation:fi .2s ease}
+.page.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.pgtitle{font-size:16px;font-weight:700;margin-bottom:2px}
+.pgsub{font-size:12px;color:var(--mu);margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.g{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g5{grid-template-columns:repeat(5,1fr)}
+.card{background:var(--sf2);border:1px solid var(--br);border-radius:14px;padding:16px;transition:border-color .15s}
+.card:hover{border-color:var(--br2)}
+.clbl{font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--mu);font-weight:500;margin-bottom:8px}
+.cval{font-size:24px;font-weight:700;line-height:1}
+.cval em{font-size:13px;font-weight:400;color:var(--mu);font-style:normal;margin-left:2px}
+.csub{font-size:11px;color:var(--dim);margin-top:4px}
+.ctr{font-size:11px;margin-top:4px}
+.up{color:var(--grn)}.dn{color:var(--red)}.neu{color:var(--mu)}
+.ico{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:15px;float:right;margin-top:-2px}
+.ic-r{background:var(--rdim);color:var(--red)}.ic-g{background:var(--gdim);color:var(--grn)}
+.ic-b{background:var(--bdim);color:var(--blu)}.ic-a{background:var(--adim);color:var(--amb)}
+.ic-p{background:var(--pdim);color:var(--pur)}.ic-t{background:var(--tdim);color:var(--teal)}
+/* Stat card with trend arrow */
+.stat-card{background:var(--sf2);border:1px solid var(--br);border-radius:14px;padding:16px;position:relative;overflow:hidden;transition:border-color .15s}
+.stat-card:hover{border-color:var(--br2)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:14px 14px 0 0}
+.sc-red::before{background:var(--red)}.sc-grn::before{background:var(--grn)}.sc-amb::before{background:var(--amb)}.sc-blu::before{background:var(--blu)}.sc-teal::before{background:var(--teal)}.sc-pur::before{background:var(--pur)}
+.stat-big{font-size:28px;font-weight:800;line-height:1;margin:6px 0 4px}
+.stat-sub{font-size:11px;color:var(--mu)}
+.stat-trend{display:flex;align-items:center;gap:5px;font-size:11px;margin-top:8px;padding-top:8px;border-top:1px solid var(--br)}
+/* Comparison bar */
+.cmp-bar{margin:8px 0}
+.cmp-lbl{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.cmp-track{height:6px;background:var(--sf3);border-radius:3px;overflow:hidden}
+.cmp-fill{height:100%;border-radius:3px;transition:width .8s ease}
+/* Session detail card */
+.sess-card{background:var(--sf);border:1px solid var(--br);border-radius:12px;padding:14px;margin-bottom:8px;transition:border-color .15s;cursor:default}
+.sess-card:hover{border-color:var(--br2)}
+.sess-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sess-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sess-metric{background:var(--sf2);border-radius:8px;padding:8px 10px}
+.sess-mlbl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:2px}
+.sess-mval{font-size:14px;font-weight:600}
+/* Savings breakdown */
+.savings-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12.5px}
+.savings-row:last-child{border-bottom:none}
+/* Big saving hero */
+.saving-hero{background:linear-gradient(135deg,#0A1A0A,#0A0E1A);border:1px solid #1A3A1A;border-radius:16px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:16px}
+.sh-val{font-size:36px;font-weight:800;color:var(--grn);letter-spacing:-1px;line-height:1}
+.sh-val em{font-size:16px;font-weight:400;color:var(--mu);font-style:normal;margin-left:4px}
+/* Chart */
+.chart-wrap{position:relative;width:100%;height:220px;margin-top:8px}
+.chart-tall{position:relative;width:100%;height:260px;margin-top:8px}
+.chart-sm{position:relative;width:100%;height:160px;margin-top:8px}
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);padding:8px 11px;border-bottom:1px solid var(--br);font-weight:500;white-space:nowrap}
+td{padding:8px 11px;border-bottom:1px solid rgba(255,255,255,.04);color:#C0C0D0;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.025)}
+.tbl-bar{padding:12px 14px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tbl-bar h3{font-size:13px;font-weight:600}
+.tbl-bar p{font-size:11px;color:var(--mu);margin-top:1px}
+.empty{padding:28px;text-align:center;color:var(--mu);font-size:13px}
+.empty i{font-size:30px;display:block;margin-bottom:8px;opacity:.35}
+/* Source badge */
+.src{font-size:9px;padding:2px 6px;border-radius:6px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;display:inline-flex;align-items:center;gap:3px}
+.src-api{background:var(--gdim);color:var(--grn);border:1px solid #153A25}
+.src-manual{background:var(--adim);color:var(--amb);border:1px solid #3A2510}
+/* Chip */
+.chip{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;border:1px solid transparent}
+.ch-home{background:var(--bdim);color:var(--blu);border-color:#1A2840}
+.ch-pub{background:var(--adim);color:var(--amb);border-color:#3A2510}
+.ch-sc{background:var(--rdim);color:var(--red);border-color:var(--rmid)}
+.ch-other{background:var(--sf3);color:var(--mu);border-color:var(--br2)}
+/* Note */
+.note{background:var(--sf);border:1px solid var(--br);border-radius:9px;padding:11px 13px;font-size:11.5px;color:var(--mu);line-height:1.6}
+.note-info{background:var(--bdim);border-color:#1A2840;color:#8AB0D8}
+/* HR */
+.hr{border:none;border-top:1px solid var(--br);margin:14px 0}
+/* Row actions */
+.row-acts{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+tr:hover .row-acts{opacity:1}
+/* Insights */
+.ins{border-radius:12px;padding:14px 16px;margin-bottom:9px;display:flex;gap:12px;border:1px solid var(--br)}
+.ins-icon{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex-shrink:0;font-size:16px}
+.ins-w{background:var(--adim);border-color:#3A2510;color:var(--amb)}
+.ins-ok{background:var(--gdim);border-color:#153A25;color:var(--grn)}
+.ins-tip{background:var(--pdim);border-color:#2A2040;color:var(--pur)}
+.ins h4{font-size:13px;font-weight:600;margin-bottom:3px}
+.ins p{font-size:11.5px;color:#7A7A90;line-height:1.55}
+.itag{font-size:9px;padding:2px 7px;border-radius:10px;display:inline-block;margin-top:5px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.tw{background:var(--adim);color:var(--amb)}.tok{background:var(--gdim);color:var(--grn)}.ttp{background:var(--pdim);color:var(--pur)}
+/* Battery */
+.bat-bar{height:11px;background:var(--sf3);border-radius:6px;overflow:hidden;margin:10px 0 5px;position:relative;border:1px solid var(--br)}
+.bat-fill{height:100%;border-radius:6px;transition:width 1s ease}
+.bat-lim{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,.2);border-radius:1px}
+.bar-ends{display:flex;justify-content:space-between;font-size:9.5px;color:var(--dim)}
+.m2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.mini{background:var(--sf);border:1px solid var(--br);border-radius:10px;padding:11px 12px}
+.mlbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:3px}
+.mval{font-size:16px;font-weight:600}
+.mval em{font-size:11px;font-weight:400;color:var(--mu);font-style:normal}
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.overlay.hidden{display:none}
+.modal{background:var(--sf);border:1px solid var(--br2);border-radius:18px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto}
+.mhdr{padding:18px 20px 14px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--sf);border-radius:18px 18px 0 0;z-index:2}
+.mhdr h3{font-size:15px;font-weight:700}
+.mbody{padding:18px 20px 20px}
+.mclose{background:none;border:none;cursor:pointer;color:var(--mu);font-size:20px;padding:4px;border-radius:6px;line-height:1}
+.mclose:hover{color:var(--tx);background:var(--sf2)}
+.frow{margin-bottom:13px}
+.flbl{font-size:11px;color:var(--mu);display:block;margin-bottom:5px;font-weight:500}
+.finp{width:100%;background:var(--sf3);border:1px solid var(--br2);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;outline:none;transition:border-color .15s;font-family:inherit}
+.finp:focus{border-color:var(--blu)}
+.finp::placeholder{color:var(--dim)}
+select.finp{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A5A72' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.btn{padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-r{background:var(--red);color:#fff}.btn-r:hover{background:#C41530}
+.btn-sec{background:var(--sf3);color:var(--tx);border:1px solid var(--br2)}.btn-sec:hover{background:var(--br2)}
+.btn-danger{background:var(--rdim);color:var(--red);border:1px solid var(--rmid)}.btn-danger:hover{background:var(--rmid)}
+.btn-grn{background:var(--gdim);color:var(--grn);border:1px solid #153A25}.btn-grn:hover{background:#153A25}
+.btn-sm{padding:5px 10px;font-size:11.5px;border-radius:7px}
+.mactions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--br)}
+/* Sync bar */
+.sync-bar{background:var(--bdim);border:1px solid #1A2840;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:12px;flex-wrap:wrap;gap:8px}
+.sync-btn{background:var(--gdim);border:1px solid #153A25;border-radius:7px;padding:5px 12px;color:var(--grn);font-size:11.5px;cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:500}
+.sync-btn:hover{background:#153A25}
+.ref-btn{background:none;border:1px solid var(--br2);border-radius:7px;padding:5px 10px;color:var(--mu);font-size:11.5px;cursor:pointer;display:flex;align-items:center;gap:5px}
+.ref-btn:hover{border-color:var(--br);color:var(--tx)}
+.live-st{padding:10px 14px;border-radius:9px;font-size:12px;display:flex;align-items:center;gap:8px;margin-top:10px}
+.ls-ok{background:var(--gdim);border:1px solid #153A25;color:var(--grn)}
+.ls-err{background:var(--rdim);border:1px solid var(--rmid);color:var(--red)}
+.ls-load{background:var(--bdim);border:1px solid #152A40;color:var(--blu)}
+.spin{animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.conn-inp{background:var(--sf3);border:1px solid var(--br2);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:12.5px;outline:none;transition:border-color .15s;width:100%;font-family:inherit}
+.conn-inp:focus{border-color:var(--blu)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--sf3);border:1px solid var(--br2);border-radius:10px;padding:10px 16px;font-size:12.5px;color:var(--tx);display:flex;align-items:center;gap:8px;z-index:200;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.t-ok{border-color:#153A25;color:var(--grn)}.toast.t-err{border-color:var(--rmid);color:var(--red)}
+/* ── Mobile bottom nav ── */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--sf);border-top:1px solid var(--br);z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+.mob-nav-inner{display:flex}
+.mob-n{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;cursor:pointer;border:none;background:none;color:var(--mu);font-size:9.5px;gap:4px;transition:color .15s;line-height:1}
+.mob-n i{font-size:20px}
+.mob-n.on{color:var(--red)}
+/* ── Mobile session card ── */
+.mob-sess-card{background:var(--sf2);border:1px solid var(--br);border-radius:12px;padding:14px;margin-bottom:10px}
+.mob-sess-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mob-sess-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.mob-sess-metric{text-align:center}
+.mob-sess-lbl{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
+.mob-sess-val{font-size:14px;font-weight:700}
+/* ── Mobile trip card ── */
+.mob-trip-card{background:var(--sf2);border:1px solid var(--br);border-radius:12px;padding:12px;margin-bottom:8px}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .mob-nav{display:block}
+  .page{padding:14px 12px 80px}
+  .hdr{padding:10px 14px}
+  .hdr-l h2{font-size:13px}
+  .hdr-r .pill:not(#h-conn){display:none}
+  .g4,.g5{grid-template-columns:repeat(2,1fr)}
+  .stat-card{min-width:0}
+  .g3{grid-template-columns:1fr 1fr}
+  .g2{grid-template-columns:1fr}
+  .fg2,.fg3{grid-template-columns:1fr}
+  .stat-card .stat-big{font-size:20px}
+  .saving-hero{flex-direction:column;gap:10px}
+  .sh-val{font-size:26px}
+  /* Hide desktop table, show mobile cards */
+  .desktop-table{display:none}
+  .mobile-cards{display:block}
+  /* Shrink header KPI values on mobile */
+  .cval{font-size:20px}
+  .banner{flex-direction:column;gap:10px}
+  /* Charts full width */
+  .chart-wrap,.chart-tall,.chart-sm{height:180px}
+}
+@media(min-width:769px){
+  .mobile-cards{display:none}
+  .desktop-table{display:block}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ── Manual charge modal ──────────────────────────────────────── -->
+<div class="overlay hidden" id="charge-modal">
+  <div class="modal">
+    <div class="mhdr">
+      <h3 id="charge-modal-title">Registrar carga manual</h3>
+      <button class="mclose" onclick="closeModal('charge-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="cm-id">
+      <div class="note note-info" style="margin-bottom:14px"><i class="ti ti-info-circle"></i> Ingresá cargas en <strong>casa o cargadores públicos</strong>. Los Supercharger se importan automáticamente desde Tesla.</div>
+      <div class="fg2">
+        <div class="frow"><label class="flbl">Fecha y hora</label><input class="finp" type="datetime-local" id="cm-date"></div>
+        <div class="frow"><label class="flbl">Tipo</label>
+          <select class="finp" id="cm-type"><option value="home">🏠 Casa</option><option value="pub">🏢 Público</option><option value="other">🔌 Otro</option></select>
+        </div>
+      </div>
+      <div class="frow"><label class="flbl">Lugar</label><input class="finp" type="text" id="cm-loc" placeholder="Casa – Cargador Nivel 2, WOM Usaquén…"></div>
+      <div class="fg3">
+        <div class="frow"><label class="flbl">Batería inicio (%)</label><input class="finp" type="number" id="cm-start" min="0" max="100" placeholder="20"></div>
+        <div class="frow"><label class="flbl">Batería fin (%)</label><input class="finp" type="number" id="cm-end" min="0" max="100" placeholder="80"></div>
+        <div class="frow"><label class="flbl">kWh cargados</label><input class="finp" type="number" id="cm-kwh" step="0.1" placeholder="28.5"></div>
+      </div>
+      <div class="fg3">
+        <div class="frow"><label class="flbl">Duración (min)</label><input class="finp" type="number" id="cm-dur" placeholder="180"></div>
+        <div class="frow"><label class="flbl">Costo carga (COP)</label><input class="finp" type="number" id="cm-cost" placeholder="18000" oninput="calcRate()"></div>
+        <div class="frow"><label class="flbl">Parqueadero (COP)</label><input class="finp" type="number" id="cm-park" placeholder="0"></div>
+      </div>
+      <div class="fg2">
+        <div class="frow"><label class="flbl">Tarifa $/kWh (COP) <span style="color:var(--dim);font-size:10px">auto-calculado</span></label><input class="finp" type="number" id="cm-rate" placeholder="600" readonly style="color:var(--grn)"></div>
+        <div class="frow" style="display:flex;align-items:center;gap:10px;padding-top:20px">
+          <input type="checkbox" id="cm-peak" style="width:16px;height:16px;accent-color:var(--amb);cursor:pointer">
+          <label for="cm-peak" style="font-size:12.5px;color:var(--mu);cursor:pointer">¿Horario pico? (6-9am / 5-10pm)</label>
+        </div>
+      </div>
+      <div class="frow"><label class="flbl">Notas</label><textarea class="finp" id="cm-notes" rows="2" placeholder="Observaciones…" style="resize:vertical"></textarea></div>
+      <div class="mactions">
+        <button class="btn btn-sec" onclick="closeModal('charge-modal')">Cancelar</button>
+        <button class="btn btn-r" onclick="saveManualCharge()"><i class="ti ti-device-floppy"></i> Guardar carga</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SC cost modal ──────────────────────────────────────────── -->
+<div class="overlay hidden" id="sc-cost-modal">
+  <div class="modal" style="max-width:440px">
+    <div class="mhdr"><h3>Agregar costo COP · Supercharger</h3><button class="mclose" onclick="closeModal('sc-cost-modal')"><i class="ti ti-x"></i></button></div>
+    <div class="mbody">
+      <input type="hidden" id="scc-id">
+      <div class="note" style="margin-bottom:14px">Tesla cobra en USD. Ingresá el equivalente en COP (TRM del día × costo USD) y el parqueadero si aplica.</div>
+      <div id="scc-info" style="background:var(--sf3);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--mu)"></div>
+      <div class="fg2">
+        <div class="frow"><label class="flbl">Costo en COP</label><input class="finp" type="number" id="scc-cost" placeholder="54000"></div>
+        <div class="frow"><label class="flbl">Parqueadero (COP)</label><input class="finp" type="number" id="scc-park" placeholder="0"></div>
+      </div>
+      <div class="mactions">
+        <button class="btn btn-sec" onclick="closeModal('sc-cost-modal')">Cancelar</button>
+        <button class="btn btn-r" onclick="saveSCCost()"><i class="ti ti-device-floppy"></i> Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+<aside class="sidebar">
+  <div class="s-logo">
+    <div class="s-em">T</div>
+    <div><div style="font-size:13px;font-weight:600">Model 3 2026</div><div style="font-size:10px;color:var(--mu);margin-top:1px">Standard Range RWD</div></div>
+  </div>
+  <nav class="nav">
+    <div class="ns">Principal</div>
+    <button class="n on" onclick="go('dash',this)"><i class="ti ti-layout-dashboard"></i>Dashboard</button>
+    <div class="ns">Datos</div>
+    <button class="n" onclick="go('trips',this)"><i class="ti ti-map-2"></i>Trayectos</button>
+    <button class="n" onclick="go('charges',this)"><i class="ti ti-bolt"></i>Cargas</button>
+    <div class="ns">Análisis</div>
+    <button class="n" onclick="go('finances',this)"><i class="ti ti-coin"></i>Finanzas</button>
+    <button class="n" onclick="go('insights',this)"><i class="ti ti-bulb"></i>Recomendaciones</button>
+    <div class="ns">Config</div>
+    <button class="n" onclick="go('connect',this)"><i class="ti ti-plug-connected"></i>Tesla API</button>
+  </nav>
+  <div style="padding:8px;border-top:1px solid var(--br)">
+    <div style="font-size:9.5px;font-weight:500;padding:4px 2px" id="mode-lbl" style="color:var(--mu)">⬤ Sin conexión</div>
+  </div>
+</aside>
+
+<div class="main">
+<header class="hdr">
+  <div class="hdr-l"><h2 id="h-name">Tesla Model 3 2026</h2><p id="h-sub">Conectá tu vehículo en "Tesla API"</p></div>
+  <div class="hdr-r">
+    <span class="pill p-gray" id="h-conn"><i class="ti ti-wifi-off"></i> Sin conexión</span>
+    <span class="pill p-gray" id="h-sw" style="display:none">—</span>
+    <button class="ref-btn" onclick="refreshState()" id="ref-btn" style="display:none"><i class="ti ti-refresh" id="ref-ico"></i> Estado</button>
+    <button class="sync-btn" onclick="syncAll()" id="sync-btn" style="display:none"><i class="ti ti-cloud-download" id="sync-ico"></i> Sync</button>
+    <div class="dot" id="dot" style="background:var(--mu);color:var(--mu)"></div>
+  </div>
+</header>
+
+<!-- ═══════════ DASHBOARD ═══════════════════════════════════════════ -->
+<section class="page on" id="page-dash">
+  <div class="pgtitle">Dashboard</div>
+  <div class="pgsub" id="dash-sub">Conectá tu Tesla para datos en vivo</div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div class="clbl">Batería</div><div style="font-size:44px;font-weight:800;line-height:1" id="bat-pct">—<span style="font-size:20px;font-weight:400;color:var(--mu)">%</span></div></div>
+      <span class="pill p-gray" id="charge-state"><i class="ti ti-plug-x"></i> —</span>
+    </div>
+    <div class="bat-bar"><div class="bat-fill" id="bat-fill" style="width:0%"></div><div class="bat-lim" id="bat-lim" style="left:80%"></div></div>
+    <div class="bar-ends"><span>0%</span><span id="bat-lim-lbl" style="color:var(--dim)">Límite: 80%</span><span>100%</span></div>
+    <div class="m2">
+      <div class="mini"><div class="mlbl">Autonomía est.</div><div class="mval" id="m-range">— <em>km</em></div></div>
+      <div class="mini"><div class="mlbl">Ubicación</div><div style="font-size:12px;font-weight:600;color:var(--mu)" id="m-addr">—</div></div>
+      <div class="mini"><div class="mlbl">Odómetro</div><div class="mval" id="m-odo">— <em>km</em></div></div>
+      <div class="mini"><div class="mlbl">Temperatura</div><div class="mval" id="m-temp">—</div></div>
+    </div>
+  </div>
+  <div class="g g4" style="margin-bottom:12px">
+    <div class="card"><div class="ico ic-r"><i class="ti ti-gauge"></i></div><div class="clbl">Consumo prom.</div><div class="cval" id="d-eff">—<em>Wh/km</em></div><div class="csub" id="d-effs">Sin trayectos</div></div>
+    <div class="card"><div class="ico ic-a"><i class="ti ti-coin"></i></div><div class="clbl">Costo total acum.</div><div class="cval" id="d-cost" style="font-size:18px">—</div><div class="csub" id="d-costs">Sin cargas</div></div>
+    <div class="card"><div class="ico ic-g"><i class="ti ti-trending-down"></i></div><div class="clbl">Costo por km</div><div class="cval" id="d-cpk">—</div><div class="csub">Carga + parking</div></div>
+    <div class="card"><div class="ico ic-g"><i class="ti ti-gas-station-off"></i></div><div class="clbl">Ahorro vs gasolina</div><div class="cval" id="d-saving" style="font-size:18px">—</div><div class="csub">Acumulado</div></div>
+  </div>
+  <div class="g g4">
+    <div class="card"><div class="ico ic-b"><i class="ti ti-map-2"></i></div><div class="clbl">Km totales</div><div class="cval" id="d-km">—</div><div class="csub" id="d-kms">API</div></div>
+    <div class="card"><div class="ico ic-g"><i class="ti ti-leaf"></i></div><div class="clbl">CO₂ evitado</div><div class="cval" id="d-co2">—<em>kg</em></div></div>
+    <div class="card"><div class="ico ic-p"><i class="ti ti-battery-charging"></i></div><div class="clbl">Sesiones totales</div><div class="cval" id="d-sess">0</div><div class="csub" id="d-sesss">API + manual</div></div>
+    <div class="card"><div class="ico ic-t"><i class="ti ti-bolt"></i></div><div class="clbl">kWh totales</div><div class="cval" id="d-kwh">—</div><div class="csub" id="d-rate-avg">— COP/kWh prom.</div></div>
+  </div>
+</section>
+
+<!-- ═══════════ CARGAS ════════════════════════════════════════════ -->
+<section class="page" id="page-charges">
+  <div class="pgtitle">Módulo de Carga</div>
+  <div class="pgsub">Análisis completo de todas tus sesiones de carga</div>
+
+  <!-- ── Hero saving ── -->
+  <div class="saving-hero">
+    <div>
+      <div style="font-size:10.5px;color:#4A8A4A;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Ahorro acumulado vs Mazda 3 gasolina · $16.000/galón · $4.228/L · 10 km/L</div>
+      <div class="sh-val" id="ch-saving-hero">$0 <em>COP</em></div>
+      <div style="font-size:11.5px;color:#4A8A4A;margin-top:6px" id="ch-saving-desc">Ingresá cargas y trayectos para calcular</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:10.5px;color:var(--mu);margin-bottom:4px">Equivale a</div>
+      <div style="font-size:22px;font-weight:700;color:var(--grn)" id="ch-saving-liters">0 litros</div>
+      <div style="font-size:10.5px;color:var(--mu);margin-top:2px">de gasolina no consumidos</div>
+    </div>
+  </div>
+
+  <!-- ── KPI row 1: costos ── -->
+  <div class="g g5" style="margin-bottom:12px">
+    <div class="stat-card sc-teal">
+      <div class="clbl">Costo promedio/kWh</div>
+      <div class="stat-big" id="ch-avg-rate" style="color:var(--teal)">—</div>
+      <div class="stat-sub">COP por kWh cargado</div>
+      <div class="stat-trend" id="ch-rate-trend"><span class="neu">Sin datos</span></div>
+    </div>
+    <div class="stat-card sc-blu">
+      <div class="clbl">Costo/kWh en casa</div>
+      <div class="stat-big" id="ch-home-rate" style="color:var(--blu)">—</div>
+      <div class="stat-sub">Tu tarifa promedio hogar</div>
+      <div class="stat-trend"><span style="color:var(--grn)">✓ Tarifa más barata</span></div>
+    </div>
+    <div class="stat-card sc-amb">
+      <div class="clbl">Costo/kWh público</div>
+      <div class="stat-big" id="ch-pub-rate" style="color:var(--amb)">—</div>
+      <div class="stat-sub">Cargadores de terceros</div>
+      <div class="stat-trend" id="ch-pub-vs-home"><span class="neu">—</span></div>
+    </div>
+    <div class="stat-card sc-red">
+      <div class="clbl">Costo/kWh Supercharger</div>
+      <div class="stat-big" id="ch-sc-rate" style="color:var(--red)">—</div>
+      <div class="stat-sub">Tarifa Tesla en USD×TRM</div>
+      <div class="stat-trend" id="ch-sc-vs-home"><span class="neu">—</span></div>
+    </div>
+    <div class="stat-card sc-grn">
+      <div class="clbl">Costo/km eléctrico</div>
+      <div class="stat-big" id="ch-cpk" style="color:var(--grn)">—</div>
+      <div class="stat-sub">vs $423/km gasolina</div>
+      <div class="stat-trend" id="ch-cpk-trend"><span class="neu">—</span></div>
+    </div>
+  </div>
+
+  <!-- ── KPI row 2: sesiones ── -->
+  <div class="g g4" style="margin-bottom:12px">
+    <div class="card">
+      <div class="ico ic-b"><i class="ti ti-bolt"></i></div>
+      <div class="clbl">kWh totales</div>
+      <div class="cval" id="ch-kwh-total">—<em>kWh</em></div>
+      <div class="csub" id="ch-sess-total">0 sesiones</div>
+    </div>
+    <div class="card">
+      <div class="ico ic-a"><i class="ti ti-coin"></i></div>
+      <div class="clbl">Gasto total (carga)</div>
+      <div class="cval" id="ch-cost-total" style="font-size:19px">—</div>
+      <div class="csub" id="ch-cost-months">—</div>
+    </div>
+    <div class="card">
+      <div class="ico ic-p"><i class="ti ti-parking"></i></div>
+      <div class="clbl">Gasto parqueadero</div>
+      <div class="cval" id="ch-park-total" style="font-size:19px">—</div>
+      <div class="csub" id="ch-park-pct">—% del gasto total</div>
+    </div>
+    <div class="card">
+      <div class="ico ic-t"><i class="ti ti-clock"></i></div>
+      <div class="clbl">Tiempo total cargando</div>
+      <div class="cval" id="ch-time-total" style="font-size:19px">—</div>
+      <div class="csub" id="ch-avg-dur">— min prom. por sesión</div>
+    </div>
+  </div>
+
+  <!-- ── Ahorro breakdown ── -->
+  <div class="g g2" style="margin-bottom:12px">
+    <div class="card">
+      <div class="clbl" style="margin-bottom:12px">Ahorro vs gasolina · desglose</div>
+      <div style="font-size:10.5px;color:var(--mu);margin-bottom:10px;line-height:1.6">
+        <strong style="color:var(--tx)">Fórmula:</strong> km × (16.000÷10) − costo_eléctrico_total<br>
+        = km × $1.600/km (Mazda 3) − lo que pagaste de luz
+      </div>
+      <div id="saving-breakdown"></div>
+    </div>
+    <div class="card">
+      <div class="clbl" style="margin-bottom:12px">3 comparativas de costo de carga</div>
+      <div id="last5-comparison"></div>
+    </div>
+  </div>
+
+  <!-- ── Charts ── -->
+  <div class="g g2" style="margin-bottom:12px">
+    <div class="card">
+      <div class="clbl">Costo/kWh por sesión — evolución</div>
+      <div class="chart-tall"><canvas id="rateChart" role="img" aria-label="Costo por kWh evolución">Datos.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="clbl">Costo mensual por tipo de cargador</div>
+      <div class="chart-tall"><canvas id="costChart" role="img" aria-label="Costo mensual">Datos.</canvas></div>
+    </div>
+  </div>
+  <div class="g g2" style="margin-bottom:12px">
+    <div class="card">
+      <div class="clbl">kWh cargados por mes</div>
+      <div class="chart-wrap"><canvas id="kwhChart" role="img" aria-label="kWh mensuales">Datos.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="clbl">Ahorro mensual acumulado vs gasolina</div>
+      <div class="chart-wrap"><canvas id="savingChart" role="img" aria-label="Ahorro mensual">Datos.</canvas></div>
+    </div>
+  </div>
+
+  <!-- ── Horarios ── -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="clbl" style="margin-bottom:12px">Análisis de horarios de carga</div>
+    <div class="g g3">
+      <div>
+        <div style="font-size:11px;color:var(--mu);margin-bottom:8px">Distribución horaria</div>
+        <div id="peak-analysis"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--mu);margin-bottom:8px">Por tipo de cargador (kWh)</div>
+        <div class="chart-sm"><canvas id="typeDonut" role="img" aria-label="Por tipo">Datos.</canvas></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--mu);margin-bottom:8px">Eficiencia de carga</div>
+        <div id="charge-efficiency"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Table ── -->
+  <div class="card" style="padding:0">
+    <div class="tbl-bar">
+      <div><h3>Todas las sesiones</h3><p id="ch-count">0 sesiones</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="sync-btn btn-sm" onclick="syncSupercharger()" id="sc-sync-btn" style="display:none"><i class="ti ti-cloud-download"></i> Importar SC</button>
+        <button class="btn btn-r btn-sm" onclick="openManualCharge()"><i class="ti ti-plus"></i> + Carga manual</button>
+      </div>
+    </div>
+    <div id="ch-empty" class="empty"><i class="ti ti-battery-off"></i>Sin cargas todavía.<br><span style="font-size:12px">Sincronizá Supercharger o agregá una carga manual.</span></div>
+    <!-- Desktop table -->
+    <div class="desktop-table" style="overflow-x:auto">
+      <table><thead><tr><th>Fecha</th><th>Lugar</th><th>Fuente</th><th>Inicio</th><th>Fin</th><th>kWh</th><th>Tiempo</th><th>$/kWh</th><th>Costo</th><th>Parking</th><th>Total</th><th>Ahorro*</th><th></th></tr></thead>
+      <tbody id="ch-tbody"></tbody></table>
+      <div style="padding:8px 14px;border-top:1px solid var(--br);font-size:10.5px;color:var(--dim)">*Ahorro estimado vs Mazda 3 gasolina ($16.000/galón → $4.228/L · 10 km/L → $423/km). Tesla SR 2026 ~170 Wh/km → 1 km eléctrico ≈ $70-140 COP vs $423 COP gasolina</div>
+    </div>
+    <!-- Mobile cards -->
+    <div class="mobile-cards" id="ch-mobile-cards" style="padding:12px"></div>
+  </div>
+</section>
+
+<!-- ═══════════ TRAYECTOS ══════════════════════════════════════════ -->
+<section class="page" id="page-trips">
+  <div class="pgtitle">Trayectos</div>
+  <div class="pgsub">Importados automáticamente desde Tesla <span class="src src-api"><i class="ti ti-cloud"></i>API</span></div>
+  <div id="trips-sync-bar" class="sync-bar" style="display:none">
+    <span style="color:var(--blu)">Último sync: <strong id="trips-last-sync">—</strong></span>
+    <button class="sync-btn btn-sm" onclick="syncTrips()"><i class="ti ti-cloud-download"></i> Sincronizar</button>
+  </div>
+  <div class="note" id="trips-no-conn" style="margin-bottom:14px;text-align:center;padding:20px">
+    <i class="ti ti-plug" style="font-size:24px;display:block;margin-bottom:8px;opacity:.4"></i>
+    Conectá tu Tesla en la sección <strong>Tesla API</strong> para importar trayectos automáticamente.
+  </div>
+  <div class="g g4" id="trip-metrics" style="margin-bottom:14px;display:none">
+    <div class="card"><div class="ico ic-b"><i class="ti ti-map"></i></div><div class="clbl">Km totales</div><div class="cval" id="tm-km">—</div></div>
+    <div class="card"><div class="ico ic-r"><i class="ti ti-gauge"></i></div><div class="clbl">Consumo prom.</div><div class="cval" id="tm-eff">—<em>Wh/km</em></div></div>
+    <div class="card"><div class="ico ic-a"><i class="ti ti-road"></i></div><div class="clbl">Vel. promedio</div><div class="cval" id="tm-spd">—<em>km/h</em></div></div>
+    <div class="card"><div class="ico ic-g"><i class="ti ti-refresh"></i></div><div class="clbl">Trayectos</div><div class="cval" id="tm-n">0</div></div>
+  </div>
+  <div class="g g2" style="margin-bottom:14px">
+    <div class="card"><div class="clbl">Eficiencia por trayecto (Wh/km)</div><div class="chart-tall"><canvas id="tripEffChart" role="img" aria-label="Eficiencia">Datos.</canvas></div></div>
+    <div class="card"><div class="clbl" style="margin-bottom:12px">Comparativa por tipo de ruta</div><div id="trip-compare"><div class="note" style="text-align:center">Sincronizá trayectos para ver.</div></div></div>
+  </div>
+  <div class="card" style="padding:0">
+    <div class="tbl-bar"><div><h3>Historial</h3><p id="trip-count">0 importados</p></div></div>
+    <div id="trips-empty" class="empty"><i class="ti ti-map-off"></i>Sin trayectos. Hacé clic en "Sync".</div>
+    <div class="desktop-table" style="overflow-x:auto"><table><thead><tr><th>Fecha</th><th>Origen</th><th>Destino</th><th>Km</th><th>Duración</th><th>Eficiencia</th><th>Bat. inicio</th><th>Bat. fin</th><th>Energía</th></tr></thead><tbody id="trips-tbody"></tbody></table></div>
+    <div class="mobile-cards" id="trips-mobile-cards" style="padding:12px"></div>
+  </div>
+</section>
+
+<!-- ═══════════ FINANZAS ══════════════════════════════════════════ -->
+<section class="page" id="page-finances">
+  <div class="pgtitle">Finanzas</div>
+  <div class="pgsub">Gasto operativo total · carga + parqueadero</div>
+  <div style="background:linear-gradient(135deg,#120A0A,#0A0E1A);border:1px solid #2A1A1A;border-radius:14px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:12px">
+    <div><div style="font-size:10.5px;color:var(--mu);margin-bottom:3px">Gasto total operativo</div><div style="font-size:28px;font-weight:800;color:var(--red);letter-spacing:-.5px" id="fin-total">$0 <em style="font-size:13px;font-weight:400;color:var(--mu);font-style:normal">COP</em></div></div>
+    <div><div style="font-size:10.5px;color:var(--mu);margin-bottom:3px">Ahorro acumulado vs gasolina</div><div style="font-size:22px;font-weight:800;color:var(--grn)" id="fin-saving">$0 <span style="font-size:13px;font-weight:400;color:var(--mu)">COP</span></div></div>
+  </div>
+  <div class="g g3" style="margin-bottom:14px">
+    <div class="card"><div class="ico ic-g"><i class="ti ti-home"></i></div><div class="clbl">Casa</div><div class="cval" id="fin-home" style="font-size:18px">$0</div><div class="csub" id="fin-homes">0 ses. manual</div></div>
+    <div class="card"><div class="ico ic-a"><i class="ti ti-building-store"></i></div><div class="clbl">Público</div><div class="cval" id="fin-pub" style="font-size:18px">$0</div><div class="csub" id="fin-pubs">0 ses. manual</div></div>
+    <div class="card"><div class="ico ic-r"><i class="ti ti-bolt"></i></div><div class="clbl">Supercharger</div><div class="cval" id="fin-sc" style="font-size:18px">$0</div><div class="csub" id="fin-scs">0 ses. API</div></div>
+  </div>
+  <div class="g g2" style="margin-bottom:14px">
+    <div class="card"><div class="clbl" style="margin-bottom:12px">Por punto de carga</div><div id="fin-rows"><div class="note">Agregá cargas para ver.</div></div></div>
+    <div class="card"><div class="clbl">Distribución</div><div class="chart-tall"><canvas id="finPie" role="img" aria-label="Distribución">.</canvas></div></div>
+  </div>
+  <div class="g g4">
+    <div class="card"><div class="ico ic-p"><i class="ti ti-parking"></i></div><div class="clbl">Parqueadero total</div><div class="cval" id="fin-park" style="font-size:18px">$0</div></div>
+    <div class="card"><div class="ico ic-b"><i class="ti ti-currency-dollar"></i></div><div class="clbl">Costo total/km</div><div class="cval" id="fin-cpk">—</div></div>
+    <div class="card"><div class="ico ic-g"><i class="ti ti-calendar-stats"></i></div><div class="clbl">Promedio mensual</div><div class="cval" id="fin-monthly" style="font-size:18px">—</div></div>
+    <div class="card"><div class="ico ic-a"><i class="ti ti-chart-pie"></i></div><div class="clbl">% Parqueadero</div><div class="cval" id="fin-park-pct">—</div></div>
+  </div>
+</section>
+
+<!-- ═══════════ INSIGHTS ══════════════════════════════════════════ -->
+<section class="page" id="page-insights">
+  <div class="pgtitle">Recomendaciones</div>
+  <div class="pgsub">Análisis automático de tus datos reales</div>
+  <div id="insights-list"><div class="note" style="text-align:center;padding:20px">Sincronizá trayectos y agregá cargas para ver recomendaciones.</div></div>
+</section>
+
+<!-- ═══════════ TESLA API ══════════════════════════════════════════ -->
+<section class="page" id="page-connect">
+  <div class="pgtitle">Tesla API</div>
+  <div class="pgsub">Conexión vía Tessie · trayectos y Supercharger automáticos</div>
+  <div class="g g2">
+    <div style="background:var(--sf2);border:1px solid var(--br2);border-radius:16px;padding:20px">
+      <h3 style="font-size:13px;margin-bottom:14px">¿Qué es automático vs manual?</h3>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:10px"><div class="src src-api" style="flex-shrink:0;margin-top:1px"><i class="ti ti-cloud"></i>API</div><div><div style="font-size:12.5px;font-weight:600">Trayectos completos</div><div style="font-size:11.5px;color:var(--mu);margin-top:2px">Origen, destino, km, energía, velocidad, batería. Todo de Tesla.</div></div></div>
+        <div style="display:flex;gap:10px"><div class="src src-api" style="flex-shrink:0;margin-top:1px"><i class="ti ti-cloud"></i>API</div><div><div style="font-size:12.5px;font-weight:600">Supercharger</div><div style="font-size:11.5px;color:var(--mu);margin-top:2px">Factura Tesla con kWh y costo en USD. Vos ingresás el COP equivalente.</div></div></div>
+        <div style="display:flex;gap:10px"><div class="src src-manual" style="flex-shrink:0;margin-top:1px"><i class="ti ti-pencil"></i>Manual</div><div><div style="font-size:12.5px;font-weight:600">Cargas en casa y público</div><div style="font-size:11.5px;color:var(--mu);margin-top:2px">Tesla no registra costo de carga en casa ni cargadores de terceros. Los ingresás vos con kWh, costo y parqueadero.</div></div></div>
+      </div>
+    </div>
+    <div style="background:var(--sf2);border:1px solid var(--br2);border-radius:16px;padding:20px">
+      <h3 style="font-size:13px;margin-bottom:14px">Credenciales Tessie</h3>
+      <div class="frow"><label class="flbl">Tessie API Token</label><input class="conn-inp" type="password" id="inp-token" placeholder="tessie.com → Settings → API Access"></div>
+      <div class="frow" style="margin-top:10px"><label class="flbl">VIN del vehículo</label><input class="conn-inp" id="inp-vin" placeholder="5YJ3E1EC…"></div>
+      <div style="margin-top:12px"><button class="btn btn-r" onclick="connectAPI()" style="width:100%"><i class="ti ti-plug-connected"></i> Conectar</button></div>
+      <div id="conn-status" style="display:none" class="live-st"></div>
+      <div class="hr"></div>
+      <div class="clbl" style="margin-bottom:8px">Estado del vehículo</div>
+      <div id="live-preview" class="note">Conectá para ver datos.</div>
+      <button class="btn btn-danger" onclick="disconnectAPI()" id="disc-btn" style="display:none;width:100%;margin-top:10px"><i class="ti ti-plug-x"></i> Desconectar</button>
+    </div>
+  </div>
+</section>
+<!-- ═══════════ BACKUP ═══════════════════════════════════════════ -->
+<section class="page" id="page-backup">
+  <div class="pgtitle">Backup de datos</div>
+  <div class="pgsub">Exportá tus datos para llevarlos a otro navegador o computador · importá un backup previo</div>
+
+  <div class="g g2" style="margin-bottom:16px">
+    <!-- Export -->
+    <div style="background:var(--sf2);border:1px solid var(--br2);border-radius:16px;padding:20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div class="ico ic-g" style="float:none;flex-shrink:0"><i class="ti ti-database-export"></i></div>
+        <div><div style="font-size:14px;font-weight:700">Exportar</div><div style="font-size:11.5px;color:var(--mu);margin-top:1px">Descargá un archivo JSON con todos tus datos</div></div>
+      </div>
+      <div id="backup-summary" class="note" style="margin-bottom:14px">Calculando…</div>
+      <button class="btn btn-grn" onclick="exportData()" style="width:100%;justify-content:center">
+        <i class="ti ti-download"></i> Descargar backup (.json)
+      </button>
+    </div>
+
+    <!-- Import -->
+    <div style="background:var(--sf2);border:1px solid var(--br2);border-radius:16px;padding:20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div class="ico ic-b" style="float:none;flex-shrink:0"><i class="ti ti-database-import"></i></div>
+        <div><div style="font-size:14px;font-weight:700">Importar</div><div style="font-size:11.5px;color:var(--mu);margin-top:1px">Cargá un backup JSON para restaurar tus datos</div></div>
+      </div>
+      <div class="note" style="margin-bottom:14px;background:var(--adim);border-color:#3A2510;color:var(--amb)">
+        <i class="ti ti-alert-triangle"></i> Esto <strong>reemplaza</strong> todos los datos actuales. Exportá primero si querés conservarlos.
+      </div>
+      <label style="display:block;cursor:pointer">
+        <input type="file" id="import-file" accept=".json" onchange="importData(event)" style="display:none">
+        <div class="btn btn-sec" style="width:100%;justify-content:center;text-align:center">
+          <i class="ti ti-upload"></i> Seleccionar archivo .json
+        </div>
+      </label>
+      <div id="import-status" style="display:none;margin-top:10px" class="live-st"></div>
+    </div>
+  </div>
+
+  <!-- What's included -->
+  <div style="background:var(--sf2);border:1px solid var(--br);border-radius:14px;padding:18px">
+    <div class="clbl" style="margin-bottom:12px">Qué incluye el backup</div>
+    <div class="g g3">
+      <div style="background:var(--sf3);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--mu);margin-bottom:6px"><i class="ti ti-bolt" style="color:var(--amb)"></i> Cargas manuales</div>
+        <div style="font-size:20px;font-weight:700" id="bk-charges">0</div>
+        <div style="font-size:10.5px;color:var(--dim)">sesiones casa + público</div>
+      </div>
+      <div style="background:var(--sf3);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--mu);margin-bottom:6px"><i class="ti ti-map-2" style="color:var(--blu)"></i> Trayectos</div>
+        <div style="font-size:20px;font-weight:700" id="bk-trips">0</div>
+        <div style="font-size:10.5px;color:var(--dim)">importados de Tesla API</div>
+      </div>
+      <div style="background:var(--sf3);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--mu);margin-bottom:6px"><i class="ti ti-bolt" style="color:var(--red)"></i> Supercharger</div>
+        <div style="font-size:20px;font-weight:700" id="bk-sc">0</div>
+        <div style="font-size:10.5px;color:var(--dim)">sesiones importadas</div>
+      </div>
+    </div>
+    <div class="hr"></div>
+    <div style="font-size:11.5px;color:var(--mu);line-height:1.7">
+      <strong style="color:var(--tx)">No incluye:</strong> Token de Tesla API y VIN (por seguridad — los volvés a ingresar en "Tesla API"). Los trayectos se re-sincronizan automáticamente desde Tesla.
+    </div>
+  </div>
+</section>
+
+</div></div><!-- end main/shell -->
+
+<!-- Mobile bottom nav -->
+<nav class="mob-nav" id="mob-nav">
+  <div class="mob-nav-inner">
+    <button class="mob-n on" onclick="go('dash',this);mobGo(this)" id="mobn-dash"><i class="ti ti-layout-dashboard"></i>Inicio</button>
+    <button class="mob-n" onclick="go('charges',this);mobGo(this)" id="mobn-charges"><i class="ti ti-bolt"></i>Carga</button>
+    <button class="mob-n" onclick="go('trips',this);mobGo(this)" id="mobn-trips"><i class="ti ti-map-2"></i>Viajes</button>
+    <button class="mob-n" onclick="go('finances',this);mobGo(this)" id="mobn-finances"><i class="ti ti-coin"></i>Finanzas</button>
+    <button class="mob-n" onclick="go('insights',this);mobGo(this)" id="mobn-insights"><i class="ti ti-bulb"></i>Insights</button>
+    <button class="mob-n" onclick="go('connect',this);mobGo(this)" id="mobn-connect"><i class="ti ti-plug-connected"></i>API</button>
+  </div>
+</nav>
+
+<script>
+/* ══ CONSTANTS ══════════════════════════════════════════════════ */
+const GAS_GALLON = 16000;   // COP/galón gasolina
+const GAS_PRICE  = Math.round(GAS_GALLON / 3.785); // COP/litro = ~4.228
+const GAS_KM_L   = 10;      // km/litro referencia
+const GAS_CPK    = GAS_PRICE / GAS_KM_L;  // ~$423 COP/km
+const CO2_KM     = 0.185;   // kg CO2 per km (gasolina)
+const KWH_CAP    = 57.5;    // Model 3 SR 2026 usable kWh
+
+/* ══ STORAGE ════════════════════════════════════════════════════ */
+const L=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}};
+const S=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+let TRIPS   = L('tsl_trips2',[]);
+let CHARGES = L('tsl_charges2',[]);
+let SC_RAW  = L('tsl_sc_raw',[]);
+
+/* ══ HELPERS ════════════════════════════════════════════════════ */
+const UID=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const fCOP=n=>'$'+Math.round(n).toLocaleString('es-CO');
+const fMin=m=>{const h=Math.floor(m/60),mn=m%60;return h?(mn?`${h}h ${mn}m`:`${h}h`):mn+'m';};
+const fDt=iso=>{try{return new Date(iso).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'2-digit'});}catch{return iso;}};
+const fTs=ts=>new Date(ts*1000).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'2-digit'});
+
+function allCharges(){
+  const manual=CHARGES.map(c=>({...c,source:'manual'}));
+  const sc=SC_RAW.map(s=>({
+    id:'sc_'+s.id, source:'sc', date:new Date(s.started_at*1000).toISOString(),
+    type:'sc', loc:s.location, start:0, end:0, kwh:s.kwh,
+    dur:s.dur, cost:s.cost_cop||0, park:s.park_cop||0,
+    cost_usd:s.cost_usd, invoice_url:s.invoice_url, _sc_id:s.id,
+  }));
+  return [...manual,...sc].sort((a,b)=>new Date(b.date)-new Date(a.date));
+}
+
+function savingForKm(km, costElec){
+  // km driven × gas cost per km − what we actually paid for electricity
+  return km * GAS_CPK - costElec;
+}
+
+/* ══ NAV ════════════════════════════════════════════════════════ */
+function go(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.n').forEach(n=>n.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  btn.classList.add('on');
+  // Sync mobile nav highlight
+  document.querySelectorAll('.mob-n').forEach(n=>n.classList.remove('on'));
+  const mobn=document.getElementById('mobn-'+id);
+  if(mobn) mobn.classList.add('on');
+  const fn={charges:renderChargesPage,trips:renderTripsPage,finances:renderFinances,insights:renderInsights,dash:renderDashboard,backup:updateBackupSummary};
+  fn[id]?.();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ══ TESSIE API ════════════════════════════════════════════════ */
+let TK='', VIN='';
+async function tessie(path,params={}){
+  const qs=Object.entries(params).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join('&');
+  const r=await fetch(`https://api.tessie.com/${path}${qs?'?'+qs:''}`,{headers:{Authorization:`Bearer ${TK}`}});
+  if(!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+function showCSt(msg,type){
+  const el=document.getElementById('conn-status');
+  const ic={ok:'ti-circle-check',err:'ti-alert-circle',load:'ti-loader-2 spin'};
+  el.className=`live-st ls-${type}`;el.style.display='flex';
+  el.innerHTML=`<i class="ti ${ic[type]}"></i> ${msg}`;
+}
+async function connectAPI(){
+  const token=document.getElementById('inp-token').value.trim();
+  const vin=document.getElementById('inp-vin').value.trim().toUpperCase();
+  if(!token||!vin){showCSt('Ingresá token y VIN','err');return;}
+  showCSt('Conectando…','load');
+  try{
+    const d=await fetch(`https://api.tessie.com/${vin}/state`,{headers:{Authorization:`Bearer ${token}`}}).then(r=>{if(!r.ok)throw new Error(r.status===401?'Token inválido':r.status===404?'VIN no encontrado':`Error ${r.status}`);return r.json();});
+    TK=token;VIN=vin;S('tsl_token',token);S('tsl_vin',vin);
+    applyState(d);showCSt('Conectado','ok');
+    ['disc-btn','ref-btn','sync-btn','sc-sync-btn'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
+    document.getElementById('trips-sync-bar').style.display='flex';
+    document.getElementById('trips-no-conn').style.display='none';
+    document.getElementById('h-sw').style.display='';
+    toast('Conectado a Tesla','ok');
+  }catch(e){showCSt(e.message,'err');}
+}
+function applyState(d){
+  const cs=d.charge_state||{},vs=d.vehicle_state||{},cl=d.climate_state||{};
+  const bat=cs.battery_level??0;
+  const range=cs.battery_range?Math.round(cs.battery_range*1.60934):0;
+  const state=cs.charging_state||'—';
+  const limit=cs.charge_limit_soc??80;
+  const odo=vs.odometer?Math.round(vs.odometer*1.60934):null;
+  const sw=vs.software_update?.version||vs.car_version||'—';
+  const tin=cl.inside_temp!=null?Math.round(cl.inside_temp):null;
+  const tout=cl.outside_temp!=null?Math.round(cl.outside_temp):null;
+  const col=bat>50?'linear-gradient(90deg,#15803D,#22C55E)':bat>20?'linear-gradient(90deg,#854F0B,#F59E0B)':'linear-gradient(90deg,#9B1519,#E31937)';
+  document.getElementById('bat-pct').innerHTML=`${bat}<span style="font-size:20px;font-weight:400;color:var(--mu)">%</span>`;
+  document.getElementById('bat-fill').style.cssText=`width:${bat}%;background:${col}`;
+  document.getElementById('bat-lim').style.left=limit+'%';
+  document.getElementById('bat-lim-lbl').textContent=`Límite: ${limit}%`;
+  document.getElementById('m-range').innerHTML=`${range} <em>km</em>`;
+  if(odo) document.getElementById('m-odo').innerHTML=`${(odo/1000).toFixed(1)} <em>k km</em>`;
+  if(tin!=null) document.getElementById('m-temp').innerHTML=`${tin}° <em>/ ${tout}°C</em>`;
+  const sm={Charging:'p-grn',Complete:'p-blu',Disconnected:'p-gray',Stopped:'p-amb'};
+  const si={Charging:'ti-bolt',Complete:'ti-plug-connected',Disconnected:'ti-plug-x',Stopped:'ti-pause'};
+  const sc=document.getElementById('charge-state');
+  sc.className='pill '+(sm[state]||'p-gray');
+  sc.innerHTML=`<i class="ti ${si[state]||'ti-plug-x'}"></i> ${state}${state==='Charging'&&cs.charger_power?' · '+cs.charger_power+'kW':''}`;
+  document.getElementById('h-name').textContent='Tesla Model 3 2026';
+  document.getElementById('h-sub').textContent=`VIN: ${VIN} · ${new Date().toLocaleTimeString('es-CO')}`;
+  document.getElementById('h-conn').className='pill p-grn';
+  document.getElementById('h-conn').innerHTML='<i class="ti ti-wifi"></i> Online';
+  document.getElementById('h-sw').textContent=sw;
+  document.getElementById('dot').style.cssText='background:var(--grn);color:var(--grn)';
+  document.getElementById('mode-lbl').textContent='⬤ Live · Tesla API';
+  document.getElementById('mode-lbl').style.color='var(--grn)';
+  document.getElementById('dash-sub').textContent=`Datos en vivo · ${d.state||'online'} · ${new Date().toLocaleTimeString('es-CO')}`;
+  document.getElementById('m-addr').textContent=d.drive_state?.active_route_destination||'Parqueado';
+  document.getElementById('live-preview').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+    <div><div style="color:var(--dim);font-size:10px">Batería</div><div style="font-weight:600">${bat}%</div></div>
+    <div><div style="color:var(--dim);font-size:10px">Autonomía</div><div style="font-weight:600">${range} km</div></div>
+    <div><div style="color:var(--dim);font-size:10px">Estado</div><div style="font-weight:600">${state}</div></div>
+    <div><div style="color:var(--dim);font-size:10px">Odómetro</div><div style="font-weight:600">${odo?(odo/1000).toFixed(1)+' k km':'—'}</div></div>
+    <div><div style="color:var(--dim);font-size:10px">Software</div><div style="font-weight:600">${sw}</div></div>
+    <div><div style="color:var(--dim);font-size:10px">Temperatura</div><div style="font-weight:600">${tin!=null?tin+'°/'+tout+'°C':'—'}</div></div>
+  </div>`;
+}
+async function refreshState(){
+  if(!TK||!VIN)return;
+  const ico=document.getElementById('ref-ico');ico.className='ti ti-loader-2 spin';
+  try{const d=await tessie(`${VIN}/state`);applyState(d);toast('Actualizado','ok');}catch{}
+  ico.className='ti ti-refresh';
+}
+async function syncAll(){
+  if(!TK||!VIN){toast('Conectá primero','err');return;}
+  const ico=document.getElementById('sync-ico');ico.className='ti ti-loader-2 spin';
+  try{await Promise.all([syncTrips(),syncSupercharger()]);await refreshState();toast('Sync completo','ok');}catch(e){toast('Error: '+e.message,'err');}
+  ico.className='ti ti-cloud-download';
+}
+async function syncTrips(){
+  if(!TK||!VIN)return;
+  try{
+    const from=Math.floor((Date.now()-90*86400000)/1000);
+    const data=await tessie(`${VIN}/drives`,{unit_of_length:'km',unit_of_temperature:'C',from});
+    const existing=new Set(TRIPS.map(t=>t.api_id));
+    let added=0;
+    (data.results||[]).forEach(r=>{
+      if(existing.has(r.id))return;
+      const km=Math.round((r.odometer_distance||0)*10)/10;
+      const kwh=Math.round((r.energy_used||0)*100)/100;
+      TRIPS.unshift({api_id:r.id,source:'api',date:new Date(r.started_at*1000).toISOString(),started_at:r.started_at,ended_at:r.ended_at,from:r.starting_location||'—',to:r.ending_location||'—',km,dur:r.ended_at&&r.started_at?Math.round((r.ended_at-r.started_at)/60):0,kwh,eff:km>0&&kwh>0?Math.round(kwh*1000/km):0,bat_start:r.starting_battery||0,bat_end:r.ending_battery||0,avg_spd:r.average_speed||0,max_spd:r.max_speed||0});
+      added++;
+    });
+    S('tsl_trips2',TRIPS);S('tsl_trips_sync',new Date().toLocaleString('es-CO'));
+    const el=document.getElementById('trips-last-sync');if(el)el.textContent=new Date().toLocaleString('es-CO');
+    renderTripsPage();renderDashboard();
+    if(added>0)toast(added+' trayectos importados','ok'); else toast('Trayectos al día','ok');
+  }catch(e){toast('Error trayectos: '+e.message,'err');}
+}
+async function syncSupercharger(){
+  if(!TK||!VIN)return;
+  try{
+    const data=await tessie('charging_invoices',{vin:VIN});
+    const existing=new Set(SC_RAW.map(s=>s.id));
+    let added=0;
+    (data.results||[]).forEach(r=>{
+      if(existing.has(r.id))return;
+      SC_RAW.unshift({id:r.id,started_at:r.started_at,ended_at:r.ended_at,location:r.location||'Supercharger',kwh:r.energy_used||0,dur:r.ended_at&&r.started_at?Math.round((r.ended_at-r.started_at)/60):0,cost_usd:r.total_cost||0,cost_per_kwh_usd:r.cost_per_kwh||0,cost_cop:0,park_cop:0,invoice_url:r.invoice_url||null});
+      added++;
+    });
+    S('tsl_sc_raw',SC_RAW);renderChargesPage();renderDashboard();
+    if(added>0)toast(added+' Supercharger importados — agregá costo COP','ok'); else toast('Supercharger al día','ok');
+  }catch(e){toast('Error SC: '+e.message,'err');}
+}
+function disconnectAPI(){
+  localStorage.removeItem('tsl_token');localStorage.removeItem('tsl_vin');
+  TK='';VIN='';
+  ['inp-token','inp-vin'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('disc-btn').style.display='none';
+  document.getElementById('ref-btn').style.display='none';
+  document.getElementById('sync-btn').style.display='none';
+  ['sc-sync-btn','trips-sync-bar'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const tnc=document.getElementById('trips-no-conn');if(tnc)tnc.style.display='block';
+  document.getElementById('conn-status').style.display='none';
+  document.getElementById('live-preview').textContent='Conectá para ver datos.';
+  document.getElementById('mode-lbl').textContent='⬤ Sin conexión';document.getElementById('mode-lbl').style.color='';
+  document.getElementById('h-conn').className='pill p-gray';document.getElementById('h-conn').innerHTML='<i class="ti ti-wifi-off"></i> Sin conexión';
+  document.getElementById('dot').style.cssText='background:var(--mu);color:var(--mu)';
+  toast('Desconectado');
+}
+
+/* ══ MANUAL CHARGES ════════════════════════════════════════════ */
+function calcRate(){
+  const kwh=parseFloat(document.getElementById('cm-kwh').value)||0;
+  const cost=parseFloat(document.getElementById('cm-cost').value)||0;
+  document.getElementById('cm-rate').value=kwh>0?Math.round(cost/kwh):'';
+}
+function openManualCharge(){
+  document.getElementById('charge-modal-title').textContent='Registrar carga manual';
+  document.getElementById('cm-id').value='';
+  ['cm-loc','cm-kwh','cm-dur','cm-cost','cm-park','cm-rate','cm-notes','cm-start','cm-end'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cm-type').value='home';
+  document.getElementById('cm-peak').checked=false;
+  const now=new Date();now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  document.getElementById('cm-date').value=now.toISOString().slice(0,16);
+  openModal('charge-modal');
+}
+function openEditCharge(id){
+  const c=CHARGES.find(x=>x.id===id);if(!c)return;
+  document.getElementById('charge-modal-title').textContent='Editar carga';
+  document.getElementById('cm-id').value=id;
+  const dt=new Date(c.date);dt.setMinutes(dt.getMinutes()-dt.getTimezoneOffset());
+  document.getElementById('cm-date').value=dt.toISOString().slice(0,16);
+  document.getElementById('cm-type').value=c.type;
+  document.getElementById('cm-loc').value=c.loc;
+  document.getElementById('cm-start').value=c.start||'';document.getElementById('cm-end').value=c.end||'';
+  document.getElementById('cm-kwh').value=c.kwh;document.getElementById('cm-dur').value=c.dur||'';
+  document.getElementById('cm-cost').value=c.cost;document.getElementById('cm-park').value=c.park||'';
+  document.getElementById('cm-rate').value=c.rate||'';document.getElementById('cm-peak').checked=!!c.peak;
+  document.getElementById('cm-notes').value=c.notes||'';
+  openModal('charge-modal');
+}
+function saveManualCharge(){
+  const date=document.getElementById('cm-date').value;
+  const loc=document.getElementById('cm-loc').value.trim();
+  const kwh=parseFloat(document.getElementById('cm-kwh').value);
+  const cost=parseFloat(document.getElementById('cm-cost').value);
+  if(!date||!loc||isNaN(kwh)||isNaN(cost)){toast('Completá fecha, lugar, kWh y costo','err');return;}
+  const obj={id:document.getElementById('cm-id').value||UID(),source:'manual',date,type:document.getElementById('cm-type').value,loc,start:parseInt(document.getElementById('cm-start').value)||0,end:parseInt(document.getElementById('cm-end').value)||0,kwh,dur:parseInt(document.getElementById('cm-dur').value)||0,cost,park:parseFloat(document.getElementById('cm-park').value)||0,rate:kwh>0?Math.round(cost/kwh):0,peak:document.getElementById('cm-peak').checked,notes:document.getElementById('cm-notes').value.trim()};
+  const idx=CHARGES.findIndex(x=>x.id===obj.id);
+  if(idx>=0)CHARGES[idx]=obj; else CHARGES.unshift(obj);
+  S('tsl_charges2',CHARGES);closeModal('charge-modal');renderChargesPage();renderDashboard();toast('Carga guardada','ok');
+}
+function deleteCharge(id){
+  if(!confirm('¿Eliminar?'))return;
+  CHARGES=CHARGES.filter(c=>c.id!==id);S('tsl_charges2',CHARGES);renderChargesPage();renderDashboard();toast('Eliminado');
+}
+let editingSCId=null;
+function openSCCost(id){
+  editingSCId=id;
+  const sc=SC_RAW.find(x=>x.id==id);if(!sc)return;
+  document.getElementById('scc-id').value=id;
+  document.getElementById('scc-cost').value=sc.cost_cop||'';
+  document.getElementById('scc-park').value=sc.park_cop||'';
+  document.getElementById('scc-info').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div><div style="color:var(--dim);font-size:10px">Lugar</div><div style="font-weight:600">${sc.location}</div></div>
+    <div><div style="color:var(--dim);font-size:10px">kWh cargados</div><div style="font-weight:600">${sc.kwh} kWh</div></div>
+    <div><div style="color:var(--dim);font-size:10px">Costo USD (Tesla)</div><div style="font-weight:600;color:var(--amb)">$${sc.cost_usd?.toFixed(2)} USD</div></div>
+    <div><div style="color:var(--dim);font-size:10px">Sugerido (×4.200)</div><div style="font-weight:600;color:var(--grn)">${fCOP(Math.round((sc.cost_usd||0)*4200))}</div></div>
+  </div>`;
+  openModal('sc-cost-modal');
+}
+function saveSCCost(){
+  const id=document.getElementById('scc-id').value;
+  const sc=SC_RAW.find(x=>x.id==id);if(!sc)return;
+  sc.cost_cop=parseFloat(document.getElementById('scc-cost').value)||0;
+  sc.park_cop=parseFloat(document.getElementById('scc-park').value)||0;
+  S('tsl_sc_raw',SC_RAW);closeModal('sc-cost-modal');renderChargesPage();renderDashboard();toast('Supercharger actualizado','ok');
+}
+function deleteSC(id){
+  if(!confirm('¿Eliminar?'))return;
+  SC_RAW=SC_RAW.filter(s=>s.id!=id);S('tsl_sc_raw',SC_RAW);renderChargesPage();renderDashboard();toast('Eliminado');
+}
+
+/* ══ RENDER CHARGES PAGE — THE BIG ONE ════════════════════════ */
+function renderChargesPage(){
+  const all=allCharges();
+  const totalKm=TRIPS.reduce((s,t)=>s+t.km,0);
+  const totalCost=all.reduce((s,c)=>s+c.cost,0);
+  const totalPark=all.reduce((s,c)=>s+(c.park||0),0);
+  const totalKwh=all.reduce((s,c)=>s+c.kwh,0);
+  const totalDur=all.reduce((s,c)=>s+(c.dur||0),0);
+  const gasoEquiv=totalKm*GAS_CPK;
+  const saving=gasoEquiv-totalCost;
+
+  // ── Hero saving ──
+  document.getElementById('ch-saving-hero').innerHTML=saving>0?`${fCOP(saving)} <em>COP</em>`:`<span style="color:var(--mu)">Sin datos aún</span>`;
+  const liters=Math.round(saving/GAS_PRICE);
+  document.getElementById('ch-saving-liters').textContent=saving>0?liters+' litros':'—';
+  document.getElementById('ch-saving-desc').textContent=totalKm>0?`Sobre ${totalKm.toFixed(0)} km · $${GAS_CPK.toLocaleString('es-CO')}/km (Mazda 3, $16.000/galón) vs $${totalKm>0?Math.round(totalCost/totalKm).toLocaleString('es-CO'):0}/km eléctrico`:'Ingresá cargas y trayectos';
+
+  // ── Rates ──
+  const homeC=all.filter(c=>c.type==='home');
+  const pubC=all.filter(c=>c.type==='pub');
+  const scC=all.filter(c=>c.type==='sc');
+  const avgRate=(arr)=>{const kw=arr.reduce((s,c)=>s+c.kwh,0);const co=arr.reduce((s,c)=>s+c.cost,0);return kw>0?Math.round(co/kw):0;};
+  const avgRateAll=avgRate(all);
+  const homeRate=avgRate(homeC);
+  const pubRate=avgRate(pubC);
+  const scRate=avgRate(scC);
+  const cpk=totalKm>0?Math.round((totalCost+totalPark)/totalKm):0;
+
+  document.getElementById('ch-avg-rate').textContent=avgRateAll?fCOP(avgRateAll):'—';
+  document.getElementById('ch-home-rate').textContent=homeRate?fCOP(homeRate):'—';
+  document.getElementById('ch-pub-rate').textContent=pubRate?fCOP(pubRate):'—';
+  document.getElementById('ch-sc-rate').textContent=scRate?fCOP(scRate):'—';
+  document.getElementById('ch-cpk').textContent=cpk?fCOP(cpk):'—';
+
+  // trends
+  if(homeRate>0){
+    document.getElementById('ch-pub-vs-home').innerHTML=pubRate>0?`<span class="${pubRate>homeRate?'dn':'up'}">${pubRate>homeRate?'↑':'↓'} ${Math.round(Math.abs(pubRate-homeRate)/homeRate*100)}% vs casa</span>`:'<span class="neu">Sin datos</span>';
+    document.getElementById('ch-sc-vs-home').innerHTML=scRate>0?`<span class="dn">↑ ${Math.round((scRate-homeRate)/homeRate*100)}% vs casa</span>`:'<span class="neu">Sin datos</span>';
+  }
+  document.getElementById('ch-cpk-trend').innerHTML=cpk>0?`<span class="${cpk<GAS_CPK?'up':'dn'}">${cpk<GAS_CPK?'✓ '+fCOP(GAS_CPK-cpk)+'/km ahorrado':'⚠ revisar'}</span>`:'<span class="neu">—</span>';
+  const last5Arr=all.slice(0,5);
+  const last5Avg=avgRate(last5Arr);
+  document.getElementById('ch-rate-trend').innerHTML=last5Avg>0?`<span style="color:var(--mu)">Últ. 5 sesiones:</span> <span style="font-weight:600;color:var(--teal)">${fCOP(last5Avg)}/kWh</span>`:'<span class="neu">Sin datos</span>';
+
+  // ── KPIs ──
+  document.getElementById('ch-kwh-total').innerHTML=totalKwh>0?`${totalKwh.toFixed(1)}<em>kWh</em>`:'—';
+  document.getElementById('ch-sess-total').textContent=all.length+' sesiones';
+  document.getElementById('ch-cost-total').innerHTML=totalCost>0?fCOP(totalCost):'—';
+  const months=all.length?new Set(all.map(c=>c.date.slice(0,7))).size:0;
+  document.getElementById('ch-cost-months').textContent=months>0?months+' mes'+(months>1?'es':''):''+'';
+  document.getElementById('ch-park-total').innerHTML=totalPark>0?fCOP(totalPark):'$0';
+  document.getElementById('ch-park-pct').textContent=(totalCost+totalPark)>0?Math.round(totalPark/(totalCost+totalPark)*100)+'% del gasto total':'—';
+  document.getElementById('ch-time-total').textContent=totalDur>0?fMin(totalDur):'—';
+  document.getElementById('ch-avg-dur').textContent=all.length>0?Math.round(totalDur/all.length)+' min prom.':'—';
+
+  // ── Saving breakdown ──
+  const sbEl=document.getElementById('saving-breakdown');
+  if(totalKm>0&&totalCost>0){
+    const gasoKm=totalKm*GAS_CPK;
+    const savPct=Math.round(saving/gasoKm*100);
+    sbEl.innerHTML=`
+      <div class="savings-row"><span style="color:var(--mu)">Km recorridos</span><span style="font-weight:600">${totalKm.toFixed(0)} km</span></div>
+      <div class="savings-row"><span style="color:var(--mu)">Mazda 3 gasolina ($4.228/L · 10km/L = $423/km)</span><span style="color:var(--red);font-weight:600">${fCOP(gasoKm)}</span></div>
+      <div class="savings-row"><span style="color:var(--mu)">Tu gasto en electricidad</span><span style="color:var(--blu);font-weight:600">${fCOP(totalCost)}</span></div>
+      <div class="savings-row"><span style="color:var(--mu)">Parqueaderos</span><span style="color:var(--amb);font-weight:600">${fCOP(totalPark)}</span></div>
+      <div style="background:var(--gdim);border:1px solid #153A25;border-radius:10px;padding:10px 12px;margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+        <span style="color:var(--grn);font-weight:600">Ahorro neto</span>
+        <span style="color:var(--grn);font-size:18px;font-weight:700">${fCOP(saving)} <span style="font-size:11px">(${savPct}%)</span></span>
+      </div>`;
+  } else {
+    sbEl.innerHTML='<div class="note">Necesitás trayectos registrados y cargas con costo para calcular el ahorro.</div>';
+  }
+
+  // ── 3 comparativas ──
+  const l5El=document.getElementById('last5-comparison');
+  if(all.length>=1){
+    // 1. Vs carga inmediatamente anterior
+    const lastC=all[0], prevC=all[1]||null;
+    const lastRate=lastC.kwh>0&&lastC.cost>0?Math.round(lastC.cost/lastC.kwh):0;
+    const prevRate=prevC&&prevC.kwh>0&&prevC.cost>0?Math.round(prevC.cost/prevC.kwh):0;
+    const diffPrev=lastRate&&prevRate?lastRate-prevRate:null;
+
+    // 2. Vs promedio últimas 5
+    const last5=all.slice(0,5), prev5=all.slice(1,6);
+    const r5=avgRate(last5), rp5=avgRate(prev5);
+    const diff5=r5&&rp5?r5-rp5:null;
+
+    // 3. Vs misma semana mes anterior (approx: same day-of-week ±3 days, ~4 weeks back)
+    const nowMs=new Date(lastC.date).getTime();
+    const monthAgoMs=nowMs-28*86400000;
+    const sameWeekLast=all.find(c=>{const ms=new Date(c.date).getTime();return ms<(nowMs-20*86400000)&&ms>(nowMs-35*86400000);});
+    const swRate=sameWeekLast&&sameWeekLast.kwh>0?Math.round(sameWeekLast.cost/sameWeekLast.kwh):0;
+    const diffSW=lastRate&&swRate?lastRate-swRate:null;
+
+    const trendBadge=(diff,label,extra='')=>{
+      if(diff===null) return `<div style="font-size:11px;color:var(--mu)">${label}: <span>sin datos</span></div>`;
+      const up=diff>0;
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+        <span style="font-size:11px;color:var(--mu)">${label}</span>
+        <span style="font-weight:600;font-size:11.5px;color:${up?'var(--red)':'var(--grn)'}">
+          ${up?'↑':'↓'} ${fCOP(Math.abs(diff))}/kWh ${up?'más caro':'más barato'}${extra}
+        </span>
+      </div>`;
+    };
+
+    l5El.innerHTML=`
+      <div style="margin-bottom:10px">
+        <div style="font-size:10px;color:var(--mu);margin-bottom:2px">Última carga · ${fDt(lastC.date)} · ${lastC.loc.split('–')[0].trim().substring(0,22)}</div>
+        <div style="font-size:26px;font-weight:700;color:var(--teal)">${lastRate?fCOP(lastRate):'—'}<span style="font-size:12px;font-weight:400;color:var(--mu)"> /kWh</span></div>
+        <div style="font-size:10.5px;color:var(--mu);margin-top:2px">${lastC.kwh} kWh · ${lastC.cost?fCOP(lastC.cost):'sin costo'}</div>
+      </div>
+      <div>
+        ${trendBadge(diffPrev,'vs carga anterior',' ('+fDt((prevC||{date:''}).date)+')')}
+        ${trendBadge(diff5,'vs promedio últimas 5')}
+        ${trendBadge(diffSW,'vs misma semana mes ant.',sameWeekLast?' ('+fDt(sameWeekLast.date)+')':'')}
+      </div>
+      <div style="margin-top:10px;background:var(--sf3);border-radius:9px;padding:9px 11px">
+        <div style="font-size:9.5px;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">Últimas 5 sesiones</div>
+        ${all.slice(0,5).map(c=>{
+          const r=c.kwh>0&&c.cost>0?Math.round(c.cost/c.kwh):0;
+          const isAbove=r>avgRateAll&&avgRateAll>0;
+          return '<div style="display:flex;align-items:center;justify-content:space-between;padding:3px 0;font-size:11px">'
+            +'<span style="color:var(--mu)">'+fDt(c.date)+' · '+c.loc.split('–')[0].trim().substring(0,16)+'</span>'
+            +'<span style="font-weight:600;color:'+(r?(isAbove?'var(--red)':'var(--grn)'):'var(--mu)')+'">'+( r?fCOP(r)+'/kWh':'-' )+'</span>'
+            +'</div>';
+        }).join('')}
+      </div>`;
+  } else {
+    l5El.innerHTML='<div class="note">Ingresá al menos 1 carga para ver comparativas.</div>';
+  }
+
+  // ── Peak analysis ──
+  const peakEl=document.getElementById('peak-analysis');
+  const peakN=all.filter(c=>c.peak).length;
+  const offN=all.length-peakN;
+  if(all.length>0){
+    const pct=Math.round(peakN/all.length*100);
+    peakEl.innerHTML=`
+      <div class="cmp-bar"><div class="cmp-lbl"><span>Horario pico</span><span style="color:var(--amb)">${peakN} (${pct}%)</span></div><div class="cmp-track"><div class="cmp-fill" style="width:${pct}%;background:var(--amb)"></div></div></div>
+      <div class="cmp-bar"><div class="cmp-lbl"><span>Horario valle</span><span style="color:var(--grn)">${offN} (${100-pct}%)</span></div><div class="cmp-track"><div class="cmp-fill" style="width:${100-pct}%;background:var(--grn)"></div></div></div>
+      <div style="font-size:10.5px;color:var(--dim);margin-top:8px;line-height:1.5">${pct>40?'⚠ Más del 40% de tus cargas son en horario caro. Cargar de noche puede reducir el costo hasta $'+fCOP(Math.round(peakN*(avgRateAll||0)*0.4*5)).replace('$','')+'COP aprox.':'✓ Mayoría de cargas en horario económico.'}</div>`;
+  } else {peakEl.innerHTML='<div class="note" style="font-size:11px">Sin datos</div>';}
+
+  // ── Charge efficiency ──
+  const effEl=document.getElementById('charge-efficiency');
+  const withBat=all.filter(c=>c.start>0&&c.end>0&&c.kwh>0);
+  if(withBat.length>0){
+    const maxKwh=withBat.map(c=>{const pct=(c.end-c.start)/100;return {labeled:c.kwh,expected:pct*KWH_CAP};});
+    const avgEff=maxKwh.length>0?Math.round(maxKwh.reduce((s,x)=>s+(x.labeled/x.expected*100),0)/maxKwh.length):0;
+    effEl.innerHTML=`
+      <div style="font-size:22px;font-weight:700;color:var(--grn)">${avgEff}%</div>
+      <div style="font-size:11px;color:var(--mu);margin-top:3px">eficiencia promedio de carga</div>
+      <div style="font-size:10.5px;color:var(--dim);margin-top:8px;line-height:1.5">Energía registrada vs esperada según % de batería. 95%+ = óptimo.</div>`;
+  } else {effEl.innerHTML='<div style="font-size:11px;color:var(--mu)">Ingresá batería inicio y fin en las cargas para calcular.</div>';}
+
+  // ── Table ──
+  document.getElementById('ch-count').textContent=all.length+' sesiones';
+  const tbody=document.getElementById('ch-tbody');
+  document.getElementById('ch-empty').style.display=all.length?'none':'block';
+  if(!all.length){tbody.innerHTML='';return;}
+
+  // Calculate per-session saving (needs km traveled after charge — approximate via total ratio)
+  const kwhPerKm=TRIPS.length&&totalKwh>0?totalKwh/TRIPS.reduce((s,t)=>s+t.km,0):null;
+  tbody.innerHTML=all.map(c=>{
+    const isSC=c.source==='sc';
+    const rate=c.kwh>0&&c.cost>0?Math.round(c.cost/c.kwh):0;
+    const sessKm=kwhPerKm?Math.round(c.kwh/kwhPerKm):null;
+    const sessSaving=sessKm?savingForKm(sessKm,c.cost):null;
+    const srcBadge=isSC?`<span class="src src-api"><i class="ti ti-cloud"></i>SC</span>`:`<span class="src src-manual"><i class="ti ti-pencil"></i>manual</span>`;
+    const costCell=isSC&&!c.cost?`<span style="color:var(--amb);font-size:11px">$${c.cost_usd?.toFixed(2)}USD <button class="btn btn-r btn-sm" style="padding:1px 7px;font-size:9.5px" onclick="openSCCost(${c._sc_id})">+COP</button></span>`:`<span style="font-weight:600">${c.cost?fCOP(c.cost):'—'}</span>${isSC?`<button class="btn btn-sec btn-sm" style="padding:1px 5px;font-size:9px;margin-left:3px" onclick="openSCCost(${c._sc_id})"><i class="ti ti-edit"></i></button>`:''}`;
+    const acts=isSC?`<div class="row-acts"><button class="btn btn-danger btn-sm" onclick="deleteSC(${c._sc_id})"><i class="ti ti-trash"></i></button></div>`:`<div class="row-acts"><button class="btn btn-sec btn-sm" onclick="openEditCharge('${c.id}')"><i class="ti ti-edit"></i></button><button class="btn btn-danger btn-sm" onclick="deleteCharge('${c.id}')"><i class="ti ti-trash"></i></button></div>`;
+    const rateColor=rate>0?(homeRate>0&&rate>homeRate*1.5?'style="color:var(--red);font-weight:600"':rate>0&&homeRate>0&&rate<=homeRate?'style="color:var(--grn);font-weight:600"':'style="font-weight:600"'):'';
+    return `<tr>
+      <td>${fDt(c.date)}</td>
+      <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.loc}</td>
+      <td>${srcBadge}</td>
+      <td>${c.start||'—'}%</td><td>${c.end||'—'}%</td><td>${c.kwh}</td>
+      <td>${c.dur?fMin(c.dur):'—'}</td>
+      <td ${rateColor}>${rate?fCOP(rate):'—'}</td>
+      <td>${costCell}</td>
+      <td style="color:var(--amb)">${c.park?fCOP(c.park):'—'}</td>
+      <td style="font-weight:600">${c.cost?fCOP(c.cost+(c.park||0)):'—'}</td>
+      <td style="color:${sessSaving>0?'var(--grn)':'var(--mu)'};font-size:11px">${sessSaving?fCOP(sessSaving):'—'}</td>
+      <td>${acts}</td>
+    </tr>`;
+  }).join('');
+  renderChargeCharts();
+  renderChargeMobileCards(all);
+}
+
+/* ══ RENDER TRIPS PAGE ════════════════════════════════════════ */
+function renderTripsPage(){
+  const syncLbl=L('tsl_trips_sync',null);
+  if(syncLbl){const el=document.getElementById('trips-last-sync');if(el)el.textContent=syncLbl;}
+  document.getElementById('trip-count').textContent=TRIPS.length+' importados de Tesla';
+  const tbody=document.getElementById('trips-tbody');
+  document.getElementById('trips-empty').style.display=TRIPS.length?'none':'block';
+  if(!TRIPS.length){tbody.innerHTML='';return;}
+  const totalKm=TRIPS.reduce((s,t)=>s+t.km,0);
+  const effArr=TRIPS.filter(t=>t.eff>0).map(t=>t.eff);
+  const avgEff=effArr.length?Math.round(effArr.reduce((a,b)=>a+b,0)/effArr.length):0;
+  const spdArr=TRIPS.filter(t=>t.avg_spd>0).map(t=>t.avg_spd);
+  const avgSpd=spdArr.length?Math.round(spdArr.reduce((a,b)=>a+b,0)/spdArr.length):0;
+  document.getElementById('tm-km').innerHTML=`${totalKm.toFixed(0)}<em>km</em>`;
+  document.getElementById('tm-eff').innerHTML=avgEff?`${avgEff}<em>Wh/km</em>`:'—';
+  document.getElementById('tm-spd').innerHTML=avgSpd?`${avgSpd}<em>km/h</em>`:'—';
+  document.getElementById('tm-n').textContent=TRIPS.length;
+  document.getElementById('trip-metrics').style.display='grid';
+  renderTripCompare();
+  const sorted=[...TRIPS].sort((a,b)=>(b.started_at||0)-(a.started_at||0));
+  tbody.innerHTML=sorted.slice(0,50).map(t=>{
+    const ec=t.eff&&t.eff<175?'up':t.eff&&t.eff>190?'dn':'';
+    return `<tr><td>${fTs(t.started_at)}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.from}">${t.from.split(',')[0]}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.to}">${t.to.split(',')[0]}</td><td>${t.km} km</td><td>${t.dur?fMin(t.dur):'—'}</td><td class="${ec}" style="font-weight:600">${t.eff?t.eff+' Wh/km':'—'}</td><td>${t.bat_start}%</td><td>${t.bat_end}%</td><td style="color:var(--blu)">${t.kwh?t.kwh+' kWh':'—'}</td></tr>`;
+  }).join('');
+  renderTripChart();
+  renderTripMobileCards(TRIPS);
+}
+function renderTripCompare(){
+  const el=document.getElementById('trip-compare');
+  const u=TRIPS.filter(t=>t.avg_spd>0&&t.avg_spd<45&&t.eff>0);
+  const h=TRIPS.filter(t=>t.avg_spd>=65&&t.eff>0);
+  const m=TRIPS.filter(t=>t.avg_spd>=45&&t.avg_spd<65&&t.eff>0);
+  const avg=arr=>arr.length?Math.round(arr.reduce((s,t)=>s+t.eff,0)/arr.length):null;
+  const au=avg(u),ah=avg(h),am=avg(m);
+  const max=Math.max(au||0,ah||0,am||0)||220;
+  const bar=(v,c,n,lbl)=>`<div class="pb-row"><div class="pb-lbl"><span>${lbl} <span style="font-size:10px;color:var(--dim)">(${n})</span></span><span style="color:${c}">${v?v+' Wh/km':'—'}</span></div><div class="pb"><div class="pb-fill" style="width:${v?Math.round(v/max*100):0}%;background:${c}"></div></div></div>`;
+  el.innerHTML=bar(au,'var(--blu)',u.length,'Ciudad (<45 km/h)')+bar(am,'var(--amb)',m.length,'Mixto (45-65 km/h)')+bar(ah,'var(--red)',h.length,'Carretera (>65 km/h)');
+}
+
+/* ══ DASHBOARD METRICS ════════════════════════════════════════ */
+function renderDashboard(){
+  const all=allCharges();
+  const totalCost=all.reduce((s,c)=>s+c.cost+(c.park||0),0);
+  const totalKwh=all.reduce((s,c)=>s+c.kwh,0);
+  const totalKm=TRIPS.reduce((s,t)=>s+t.km,0);
+  const gasoC=totalKm*GAS_CPK;
+  const saving=gasoC-totalCost;
+  const effArr=TRIPS.filter(t=>t.eff>0).map(t=>t.eff);
+  const avgEff=effArr.length?Math.round(effArr.reduce((a,b)=>a+b,0)/effArr.length):null;
+  const cpk=totalKm>0?totalCost/totalKm:null;
+  const co2=totalKm*CO2_KM;
+  const avgRate=totalKwh>0?Math.round(all.reduce((s,c)=>s+c.cost,0)/totalKwh):null;
+  document.getElementById('d-eff').innerHTML=avgEff?`${avgEff}<em>Wh/km</em>`:'—';
+  document.getElementById('d-effs').textContent=TRIPS.length+' trayectos API';
+  document.getElementById('d-cost').innerHTML=totalCost>0?fCOP(totalCost):'—';
+  document.getElementById('d-costs').textContent=all.length+' sesiones';
+  document.getElementById('d-cpk').innerHTML=cpk?`${fCOP(Math.round(cpk))}<em>/km</em>`:'—';
+  document.getElementById('d-saving').innerHTML=saving>0?fCOP(saving):'—';
+  document.getElementById('d-km').innerHTML=totalKm>0?`${totalKm.toFixed(0)}<em>km</em>`:'—';
+  document.getElementById('d-kms').textContent=TRIPS.length+' trayectos API';
+  document.getElementById('d-co2').innerHTML=co2>0?`${co2.toFixed(0)}<em>kg</em>`:'—';
+  document.getElementById('d-sess').textContent=all.length;
+  document.getElementById('d-sesss').textContent=SC_RAW.length+' API + '+CHARGES.length+' manual';
+  document.getElementById('d-kwh').innerHTML=totalKwh>0?`${totalKwh.toFixed(1)}<em>kWh</em>`:'—';
+  document.getElementById('d-rate-avg').textContent=avgRate?fCOP(avgRate)+' COP/kWh prom.':'—';
+}
+
+/* ══ FINANCES ═════════════════════════════════════════════════ */
+function renderFinances(){
+  const all=allCharges();
+  const totalCh=all.reduce((s,c)=>s+c.cost,0);
+  const totalPk=all.reduce((s,c)=>s+(c.park||0),0);
+  const total=totalCh+totalPk;
+  const totalKm=TRIPS.reduce((s,t)=>s+t.km,0);
+  const saving=totalKm*GAS_CPK-total;
+  const byT={home:{c:0,p:0,n:0},pub:{c:0,p:0,n:0},sc:{c:0,p:0,n:0}};
+  all.forEach(c=>{const b=byT[c.type]||byT.home;b.c+=c.cost;b.p+=(c.park||0);b.n++;});
+  document.getElementById('fin-total').innerHTML=fCOP(total)+'<em style="font-size:13px;font-weight:400;color:var(--mu);font-style:normal"> COP</em>';
+  document.getElementById('fin-saving').innerHTML=saving>0?fCOP(saving)+' <span style="font-size:13px;font-weight:400;color:var(--mu)">COP</span>':fCOP(0);
+  document.getElementById('fin-home').innerHTML=fCOP(byT.home.c+byT.home.p);document.getElementById('fin-homes').textContent=byT.home.n+' ses. manual';
+  document.getElementById('fin-pub').innerHTML=fCOP(byT.pub.c+byT.pub.p);document.getElementById('fin-pubs').textContent=byT.pub.n+' ses. manual';
+  document.getElementById('fin-sc').innerHTML=fCOP(byT.sc.c+byT.sc.p);document.getElementById('fin-scs').textContent=byT.sc.n+' ses. API';
+  document.getElementById('fin-park').innerHTML=fCOP(totalPk);
+  document.getElementById('fin-cpk').innerHTML=totalKm>0?fCOP(Math.round(total/totalKm))+'/km':'—';
+  const months=all.length?new Set(all.map(c=>c.date.slice(0,7))).size:0;
+  document.getElementById('fin-monthly').innerHTML=months>0?fCOP(Math.round(total/months)):'—';
+  document.getElementById('fin-park-pct').innerHTML=total>0?Math.round(totalPk/total*100)+'%':'—';
+  const byLoc={};
+  all.forEach(c=>{if(!byLoc[c.loc])byLoc[c.loc]={loc:c.loc,type:c.type,c:0,p:0,n:0};byLoc[c.loc].c+=c.cost;byLoc[c.loc].p+=(c.park||0);byLoc[c.loc].n++;});
+  const rows=Object.values(byLoc).sort((a,b)=>(b.c+b.p)-(a.c+a.p));
+  const tc={home:'ch-home',pub:'ch-pub',sc:'ch-sc',other:'ch-other'};
+  document.getElementById('fin-rows').innerHTML=rows.length?rows.map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12.5px"><div><div style="color:#C0C0D0;font-weight:500">${r.loc} <span class="chip ${tc[r.type]||'ch-other'}" style="font-size:9px">${r.n}</span></div></div><div style="text-align:right;margin-left:12px"><div style="font-weight:600">${fCOP(r.c)}</div>${r.p?`<div style="color:var(--amb);font-size:10.5px"><i class="ti ti-parking" style="font-size:10px"></i> ${fCOP(r.p)}</div>`:''}</div></div>`).join(''):'<div class="note">Agregá cargas para ver.</div>';
+  renderFinPie(byT,totalPk);
+}
+
+/* ══ INSIGHTS ═════════════════════════════════════════════════ */
+function renderInsights(){
+  const el=document.getElementById('insights-list');
+  const all=allCharges();
+  if(!all.length&&!TRIPS.length){el.innerHTML='<div class="note" style="text-align:center;padding:20px">Sincronizá trayectos y agregá cargas para ver recomendaciones.</div>';return;}
+  const ins=[];
+  const effArr=TRIPS.filter(t=>t.eff>0).map(t=>t.eff);
+  const avgEff=effArr.length?Math.round(effArr.reduce((a,b)=>a+b,0)/effArr.length):0;
+  const totalKm=TRIPS.reduce((s,t)=>s+t.km,0);
+  const totalCost=all.reduce((s,c)=>s+c.cost+(c.park||0),0);
+  const homeC=all.filter(c=>c.type==='home');
+  const peakN=all.filter(c=>c.peak).length;
+  const avgRate=arr=>{const kw=arr.reduce((s,c)=>s+c.kwh,0);const co=arr.reduce((s,c)=>s+c.cost,0);return kw>0?Math.round(co/kw):0;};
+  if(peakN>=2) ins.push({t:'w',icon:'ti-clock',title:`${peakN} cargas en horario pico`,body:`Cargar en horario pico (6-9am / 5-10pm) puede costar hasta 40% más. Programar cargas nocturnas después de las 11 PM maximiza el ahorro en tu tarifa residencial.`,tag:'Alerta'});
+  const scC=all.filter(c=>c.type==='sc');
+  if(all.length>0&&scC.reduce((s,c)=>s+c.cost,0)/all.reduce((s,c)=>s+c.cost,0)>0.4) ins.push({t:'w',icon:'ti-bolt',title:'Supercharger: +40% del gasto de carga',body:`Cada kWh en Supercharger cuesta ~${fCOP(avgRate(scC))} vs ~${fCOP(avgRate(homeC))} en casa. Para trayectos urbanos diarios, siempre cargá en casa.`,tag:'Alerta'});
+  if(avgEff>185) ins.push({t:'w',icon:'ti-trending-up',title:`Consumo ${avgEff} Wh/km — por encima del óptimo`,body:`El Model 3 SR 2026 rinde mejor entre 155-175 Wh/km. Revisá velocidad máxima, uso de climatizador y presión de neumáticos.`,tag:'Alerta'});
+  else if(avgEff>0) ins.push({t:'ok',icon:'ti-gauge',title:`Eficiencia óptima: ${avgEff} Wh/km`,body:`Tu consumo está dentro del rango eficiente para el Model 3 SR 2026 en Bogotá. Las pendientes de la Sabana favorecen la regeneración.`,tag:'Logro'});
+  if(totalKm>500){const s=totalKm*GAS_CPK-totalCost;if(s>0)ins.push({t:'ok',icon:'ti-check',title:`Ahorro real: ${fCOP(s)} COP`,body:`Vs Mazda 3 gasolina ($16.000/galón → $4.228/L → $423/km) sobre ${totalKm.toFixed(0)} km. Tu costo eléctrico real: ${fCOP(Math.round(totalCost/totalKm))}/km.`,tag:'Logro'});}
+  const overcharged=all.filter(c=>c.end>85).length;
+  if(overcharged>=2) ins.push({t:'tip',icon:'ti-battery-charging',title:`${overcharged} cargas superaron el 85%`,body:'Para uso diario en Bogotá con 378 km de autonomía al 72%, no necesitás más del 80%. Configurá el límite en la app Tesla para preservar la batería.',tag:'Consejo'});
+  const totalPark=all.reduce((s,c)=>s+(c.park||0),0);
+  if(totalPark>50000) ins.push({t:'tip',icon:'ti-parking',title:`${fCOP(totalPark)} en parqueaderos`,body:`Parqueadero = ${fCOP(Math.round(totalPark/totalCost*100))}% del gasto eléctrico. Un cargador L2 en casa (~$1.2M instalado) se paga en ${Math.ceil(1200000/totalPark)} meses solo con lo que ahorrarías en parking.`,tag:'Consejo'});
+  const co2=totalKm*CO2_KM;
+  if(co2>50) ins.push({t:'ok',icon:'ti-leaf',title:`${co2.toFixed(0)} kg de CO₂ evitados`,body:`≈ ${Math.floor(co2/21)} árboles equivalentes. 0 g CO₂ directo/km vs 185 g/km promedio gasolina en Colombia.`,tag:'Logro'});
+  const ct={w:'ins-w',ok:'ins-ok',tip:'ins-tip'};const tg={w:'tw',ok:'tok',tip:'ttp'};
+  el.innerHTML=ins.map(i=>`<div class="ins"><div class="ins-icon ${ct[i.t]||'ins-ok'}"><i class="ti ${i.icon}"></i></div><div><h4>${i.title}</h4><p>${i.body}</p><span class="itag ${tg[i.t]||'tok'}">${i.tag}</span></div></div>`).join('');
+}
+
+/* ══ CHARTS ═══════════════════════════════════════════════════ */
+let CH={};
+const dc=k=>{if(CH[k]){CH[k].destroy();delete CH[k];}};
+const go2={color:'#1A1A24'},tk2={color:'#444456',font:{size:10}};
+
+function renderTripChart(){
+  dc('tripEff');
+  const recent=[...TRIPS].sort((a,b)=>(b.started_at||0)-(a.started_at||0)).slice(0,20).reverse();
+  if(!recent.length)return;
+  CH.tripEff=new Chart(document.getElementById('tripEffChart'),{type:'bar',data:{labels:recent.map(t=>fTs(t.started_at)),datasets:[{label:'Wh/km',data:recent.map(t=>t.eff||0),backgroundColor:recent.map(t=>t.eff>185?'#E31937':t.eff>170?'#F59E0B':'#22C55E'),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{...tk2,maxRotation:45},grid:{display:false}},y:{ticks:{...tk2,callback:v=>v+' Wh'},grid:go2,border:{display:false},min:100}}}});
+}
+
+function renderChargeCharts(){
+  dc('rate');dc('cost');dc('kwh');dc('saving');dc('typeDonut');
+  const all=allCharges();
+  if(!all.length)return;
+
+  // Rate per session (last 15)
+  const last15=[...all].slice(0,15).reverse();
+  const rates=last15.map(c=>c.kwh>0&&c.cost>0?Math.round(c.cost/c.kwh):null);
+  const homeAvgR=avgRateForType(all,'home');
+  CH.rate=new Chart(document.getElementById('rateChart'),{type:'line',data:{labels:last15.map(c=>fDt(c.date)),datasets:[{label:'$/kWh',data:rates,borderColor:'#14B8A6',backgroundColor:'rgba(20,184,166,.08)',fill:true,tension:.3,pointBackgroundColor:rates.map(r=>r&&homeAvgR&&r>homeAvgR*1.3?'#E31937':'#14B8A6'),pointRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>v.raw?fCOP(v.raw)+'/kWh':''}}},scales:{x:{ticks:{...tk2,maxRotation:45},grid:{display:false}},y:{ticks:{...tk2,callback:v=>fCOP(v)},grid:go2,border:{display:false}}}}});
+
+  // Monthly cost stacked
+  const months={};
+  all.forEach(c=>{const d=new Date(c.date),k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(!months[k])months[k]={lbl:d.toLocaleDateString('es-CO',{month:'short',year:'2-digit'}),home:0,pub:0,sc:0,kwh:0,km:0};const m=months[k];if(c.type==='home')m.home+=c.cost;else if(c.type==='pub')m.pub+=c.cost;else if(c.type==='sc')m.sc+=c.cost;m.kwh+=c.kwh;});
+  TRIPS.forEach(t=>{const d=new Date(t.date),k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(months[k])months[k].km+=t.km;});
+  const sorted=Object.entries(months).sort(([a],[b])=>a.localeCompare(b)).slice(-8);
+  if(sorted.length){
+    const labels=sorted.map(([,v])=>v.lbl);
+    CH.cost=new Chart(document.getElementById('costChart'),{type:'bar',data:{labels,datasets:[{label:'Casa',data:sorted.map(([,v])=>v.home),backgroundColor:'#3B82F6',stack:'a'},{label:'Público',data:sorted.map(([,v])=>v.pub),backgroundColor:'#F59E0B',stack:'a'},{label:'Supercharger',data:sorted.map(([,v])=>v.sc),backgroundColor:'#E31937',stack:'a'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#666680',font:{size:10},boxWidth:8}}},scales:{x:{ticks:tk2,grid:{display:false}},y:{ticks:{...tk2,callback:v=>'$'+Math.round(v/1000)+'K'},grid:go2,border:{display:false}}}}});
+    CH.kwh=new Chart(document.getElementById('kwhChart'),{type:'bar',data:{labels,datasets:[{label:'kWh',data:sorted.map(([,v])=>Math.round(v.kwh*10)/10),backgroundColor:'#3B82F6',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:tk2,grid:{display:false}},y:{ticks:tk2,grid:go2,border:{display:false}}}}});
+    // Saving chart
+    const savData=sorted.map(([,v])=>v.km>0?Math.round(v.km*GAS_CPK-(v.home+v.pub+v.sc)):0);
+    CH.saving=new Chart(document.getElementById('savingChart'),{type:'bar',data:{labels,datasets:[{label:'Ahorro vs gasolina',data:savData,backgroundColor:savData.map(v=>v>0?'#22C55E':'#E31937'),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:tk2,grid:{display:false}},y:{ticks:{...tk2,callback:v=>'$'+Math.round(v/1000)+'K'},grid:go2,border:{display:false}}}}});
+  }
+
+  // Type donut
+  const byType={home:0,pub:0,sc:0};
+  all.forEach(c=>{if(byType[c.type]!=null)byType[c.type]+=c.kwh;});
+  const vals=[byType.home,byType.pub,byType.sc].filter(v=>v>0);
+  const lbls=['Casa','Público','Supercharger'].filter((_,i)=>[byType.home,byType.pub,byType.sc][i]>0);
+  if(vals.length) CH.typeDonut=new Chart(document.getElementById('typeDonut'),{type:'doughnut',data:{labels:lbls,datasets:[{data:vals,backgroundColor:['#3B82F6','#F59E0B','#E31937'],borderColor:'#111116',borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#666680',font:{size:10},padding:8,boxWidth:8}}},cutout:'65%'}});
+}
+
+function renderFinPie(byT,pk){
+  dc('pie');
+  const vals=[byT.home.c+byT.home.p,byT.pub.c+byT.pub.p,byT.sc.c+byT.sc.p,pk].filter(v=>v>0);
+  const lbls=['Casa','Público','Supercharger','Parking'].filter((_,i)=>[byT.home.c+byT.home.p,byT.pub.c+byT.pub.p,byT.sc.c+byT.sc.p,pk][i]>0);
+  if(!vals.length)return;
+  CH.pie=new Chart(document.getElementById('finPie'),{type:'doughnut',data:{labels:lbls,datasets:[{data:vals,backgroundColor:['#3B82F6','#F59E0B','#E31937','#22C55E'],borderColor:'#111116',borderWidth:3,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#666680',font:{size:11},padding:12,boxWidth:10}}},cutout:'62%'}});
+}
+
+function avgRateForType(all,type){const arr=all.filter(c=>c.type===type);const kw=arr.reduce((s,c)=>s+c.kwh,0);const co=arr.reduce((s,c)=>s+c.cost,0);return kw>0?Math.round(co/kw):0;}
+
+/* ══ MODAL UTILS ══════════════════════════════════════════════ */
+function openModal(id){document.getElementById(id).classList.remove('hidden');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.add('hidden');document.body.style.overflow='';}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id);}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay:not(.hidden)').forEach(o=>closeModal(o.id));});
+let toastT;
+function toast(msg,type='ok'){const el=document.getElementById('toast');clearTimeout(toastT);el.className=`toast t-${type} show`;el.innerHTML=`<i class="ti ${type==='ok'?'ti-circle-check':'ti-alert-circle'}"></i> ${msg}`;toastT=setTimeout(()=>el.classList.remove('show'),3200);}
+
+/* ══ BACKUP / EXPORT / IMPORT ═════════════════════════════════ */
+function updateBackupSummary(){
+  const all=allCharges();
+  const txt=`Tenés <strong style="color:var(--tx)">${CHARGES.length}</strong> cargas manuales, <strong style="color:var(--tx)">${TRIPS.length}</strong> trayectos y <strong style="color:var(--tx)">${SC_RAW.length}</strong> sesiones Supercharger guardados en este navegador.`;
+  const el=document.getElementById('backup-summary');
+  if(el) el.innerHTML=txt;
+  const bc=document.getElementById('bk-charges');if(bc)bc.textContent=CHARGES.length;
+  const bt=document.getElementById('bk-trips');if(bt)bt.textContent=TRIPS.length;
+  const bs=document.getElementById('bk-sc');if(bs)bs.textContent=SC_RAW.length;
+}
+
+function exportData(){
+  const payload={
+    version:2,
+    exported_at:new Date().toISOString(),
+    vehicle:'Tesla Model 3 2026 SR RWD',
+    charges:CHARGES,
+    sc_raw:SC_RAW,
+    trips:TRIPS,
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='tesla-dashboard-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup descargado ✓','ok');
+}
+
+function importData(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.version||!data.charges) throw new Error('Formato inválido');
+      CHARGES=data.charges||[];
+      SC_RAW=data.sc_raw||[];
+      TRIPS=data.trips||[];
+      S('tsl_charges2',CHARGES);
+      S('tsl_sc_raw',SC_RAW);
+      S('tsl_trips2',TRIPS);
+      renderDashboard();renderChargesPage();renderTripsPage();updateBackupSummary();
+      const st=document.getElementById('import-status');
+      st.style.display='flex';st.className='live-st ls-ok';
+      st.innerHTML='<i class="ti ti-circle-check"></i> Importado: '+CHARGES.length+' cargas, '+TRIPS.length+' trayectos, '+SC_RAW.length+' SC';
+      toast('Datos importados correctamente','ok');
+    }catch(err){
+      const st=document.getElementById('import-status');
+      st.style.display='flex';st.className='live-st ls-err';
+      st.innerHTML='<i class="ti ti-alert-circle"></i> Error: '+err.message;
+      toast('Error al importar','err');
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ══ PRE-SEEDED DATA (tus cargas reales) ══════════════════════ */
+const SEED_CHARGES = [
+  {id:'c_enel97',source:'manual',date:'2026-05-17T08:00:00',type:'pub',loc:'Enel X Calle 97',start:27,end:99,kwh:45.82,dur:73,cost:77440,park:20000,rate:1690,peak:false,notes:''},
+  {id:'c_enel_uni',source:'manual',date:'2026-05-07T09:00:00',type:'pub',loc:'Enel X Unicentro',start:29,end:97,kwh:44.59,dur:63,cost:75357,park:15000,rate:1690,peak:false,notes:''},
+  {id:'c_voltop',source:'manual',date:'2026-05-01T10:00:00',type:'pub',loc:'Voltop EAN',start:88,end:99,kwh:7.06,dur:16,cost:12360,park:7000,rate:1751,peak:false,notes:''},
+  {id:'c_voltext',source:'manual',date:'2026-04-29T11:00:00',type:'pub',loc:'Voltext - Cruz Roja',start:34,end:97,kwh:40,dur:152,cost:70000,park:0,rate:1750,peak:false,notes:''},
+];
+
+/* ══ MOBILE NAV ════════════════════════════════════════════════ */
+function mobGo(btn){
+  document.querySelectorAll('.mob-n').forEach(n=>n.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+/* ══ MOBILE CARDS RENDERERS ════════════════════════════════════ */
+function renderChargeMobileCards(all){
+  const el=document.getElementById('ch-mobile-cards');
+  if(!el) return;
+  if(!all.length){el.innerHTML='';return;}
+  const kwhPerKm=TRIPS.length&&allCharges().reduce((s,c)=>s+c.kwh,0)>0?allCharges().reduce((s,c)=>s+c.kwh,0)/TRIPS.reduce((s,t)=>s+t.km,0):null;
+  const avgRateAll2=()=>{const kw=all.reduce((s,c)=>s+c.kwh,0),co=all.reduce((s,c)=>s+c.cost,0);return kw>0?Math.round(co/kw):0;};
+  const avg=avgRateAll2();
+  const typeColor={home:'var(--blu)',pub:'var(--amb)',sc:'var(--red)',other:'var(--mu)'};
+  const typeLbl={home:'Casa',pub:'Público',sc:'Supercharger',other:'Otro'};
+  const srcIcon={manual:'<span class="src src-manual" style="font-size:9px"><i class="ti ti-pencil"></i>manual</span>',sc:'<span class="src src-api" style="font-size:9px"><i class="ti ti-cloud"></i>SC</span>'};
+  el.innerHTML=all.map(c=>{
+    const rate=c.kwh>0&&c.cost>0?Math.round(c.cost/c.kwh):0;
+    const rateColor=rate&&avg&&rate>avg*1.2?'var(--red)':rate&&avg&&rate<=avg?'var(--grn)':'var(--tx)';
+    const sessKm=kwhPerKm?Math.round(c.kwh/kwhPerKm):null;
+    const sessSaving=sessKm?Math.round(sessKm*GAS_CPK-c.cost):null;
+    const isSC=c.source==='sc';
+    const editBtn=isSC
+      ?`<button class="btn btn-sec btn-sm" onclick="openSCCost(${c._sc_id})" style="padding:4px 8px"><i class="ti ti-edit"></i></button><button class="btn btn-danger btn-sm" onclick="deleteSC(${c._sc_id})" style="padding:4px 8px"><i class="ti ti-trash"></i></button>`
+      :`<button class="btn btn-sec btn-sm" onclick="openEditCharge('${c.id}')" style="padding:4px 8px"><i class="ti ti-edit"></i></button><button class="btn btn-danger btn-sm" onclick="deleteCharge('${c.id}')" style="padding:4px 8px"><i class="ti ti-trash"></i></button>`;
+    return `<div class="mob-sess-card">
+      <div class="mob-sess-header">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--tx)">${c.loc}</div>
+          <div style="font-size:11px;color:var(--mu);margin-top:2px;display:flex;align-items:center;gap:6px">
+            <span>${fDt(c.date)}</span>
+            ${srcIcon[c.source]||srcIcon.manual}
+            <span style="color:${typeColor[c.type]||'var(--mu)'};font-size:10px">${typeLbl[c.type]||'—'}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:5px">${editBtn}</div>
+      </div>
+      <div class="mob-sess-grid">
+        <div class="mob-sess-metric">
+          <div class="mob-sess-lbl">kWh</div>
+          <div class="mob-sess-val">${c.kwh}</div>
+        </div>
+        <div class="mob-sess-metric">
+          <div class="mob-sess-lbl">$/kWh</div>
+          <div class="mob-sess-val" style="color:${rateColor}">${rate?fCOP(rate):'—'}</div>
+        </div>
+        <div class="mob-sess-metric">
+          <div class="mob-sess-lbl">Duración</div>
+          <div class="mob-sess-val">${c.dur?fMin(c.dur):'—'}</div>
+        </div>
+        <div class="mob-sess-metric">
+          <div class="mob-sess-lbl">Costo</div>
+          <div class="mob-sess-val" style="font-size:13px">${c.cost?fCOP(c.cost):'—'}</div>
+        </div>
+        <div class="mob-sess-metric">
+          <div class="mob-sess-lbl">Parking</div>
+          <div class="mob-sess-val" style="font-size:13px;color:var(--amb)">${c.park?fCOP(c.park):'—'}</div>
+        </div>
+        <div class="mob-sess-metric">
+          <div class="mob-sess-lbl">Total</div>
+          <div class="mob-sess-val" style="font-size:13px;color:var(--tx)">${c.cost?fCOP(c.cost+(c.park||0)):'—'}</div>
+        </div>
+      </div>
+      ${c.start||c.end?`<div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid var(--br)">
+        <span style="font-size:10.5px;color:var(--mu)">Batería:</span>
+        <div style="flex:1;height:5px;background:var(--sf3);border-radius:3px;overflow:hidden">
+          <div style="height:100%;background:linear-gradient(90deg,var(--grn),var(--grn));width:${c.end}%;margin-left:${c.start}%;transform:scaleX(${(c.end-c.start)/100})"></div>
+        </div>
+        <span style="font-size:10.5px;color:var(--mu)">${c.start}% → ${c.end}%</span>
+      </div>`:''}
+      ${sessSaving?`<div style="margin-top:8px;font-size:11px;color:var(--grn)">↓ ${fCOP(sessSaving)} ahorrado vs gasolina</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderTripMobileCards(trips){
+  const el=document.getElementById('trips-mobile-cards');
+  if(!el) return;
+  if(!trips.length){el.innerHTML='';return;}
+  const sorted=[...trips].sort((a,b)=>(b.started_at||0)-(a.started_at||0));
+  el.innerHTML=sorted.slice(0,30).map(t=>{
+    const effColor=t.eff<175?'var(--grn)':t.eff>190?'var(--red)':'var(--amb)';
+    const fromShort=t.from.split(',')[0]||t.from;
+    const toShort=t.to.split(',')[0]||t.to;
+    return `<div class="mob-trip-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11.5px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${fromShort}</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:1px;display:flex;align-items:center;gap:3px"><i class="ti ti-arrow-down" style="font-size:9px"></i>${toShort}</div>
+        </div>
+        <span style="font-size:10px;color:var(--mu);flex-shrink:0;margin-left:8px">${fTs(t.started_at)}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center">
+        <div><div style="font-size:9px;color:var(--dim)">km</div><div style="font-size:14px;font-weight:700">${t.km}</div></div>
+        <div><div style="font-size:9px;color:var(--dim)">tiempo</div><div style="font-size:13px;font-weight:600">${t.dur?fMin(t.dur):'—'}</div></div>
+        <div><div style="font-size:9px;color:var(--dim)">Wh/km</div><div style="font-size:14px;font-weight:700;color:${effColor}">${t.eff||'—'}</div></div>
+        <div><div style="font-size:9px;color:var(--dim)">bat.</div><div style="font-size:12px;font-weight:600">${t.bat_start}→${t.bat_end}%</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══ BOOT ═════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded',()=>{
+  TK=L('tsl_token','');VIN=L('tsl_vin','');
+  if(TK&&VIN){
+    document.getElementById('inp-token').value=TK;
+    document.getElementById('inp-vin').value=VIN;
+    setTimeout(async()=>{
+      try{
+        const d=await tessie(`${VIN}/state`);applyState(d);
+        ['disc-btn','ref-btn','sync-btn','sc-sync-btn'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
+        document.getElementById('trips-sync-bar').style.display='flex';
+        const tnc=document.getElementById('trips-no-conn');if(tnc)tnc.style.display='none';
+        document.getElementById('h-sw').style.display='';
+        showCSt('Reconectado automáticamente','ok');
+      }catch(e){}
+    },400);
+  }
+  // Seed charges if localStorage is empty (first time opening)
+  if(CHARGES.length===0 && SC_RAW.length===0){
+    CHARGES=SEED_CHARGES;
+    S('tsl_charges2',CHARGES);
+  }
+  const syncLbl=L('tsl_trips_sync',null);
+  const el=document.getElementById('trips-last-sync');if(el&&syncLbl)el.textContent=syncLbl;
+  renderDashboard();renderChargesPage();renderTripsPage();
+  updateBackupSummary();
+});
+</script>
+</body>
+</html>
